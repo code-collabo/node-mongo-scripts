@@ -18,96 +18,111 @@ const deletePreviousTemplateFiles = async (filesArray, folderPath) => {
       fs.existsSync(`${folderPath}/${file}`) ? fs.unlinkSync(`${folderPath}/${file}`) : null;
     });
   } catch(err) {
-    console.log({ err }); // TODO: Display user understandable error message? Maybe also try use this here: await access(pathToCheck, fs.constants.R_OK);
+    console.log(err);
   }
 }
 
 const questionPushAPIscripts = (arg) => {
+  const { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, atleastOneSetOfAtlasConnectionFileExists, atleastOneSetOfLocalConnectionFileExists } = arg;
+  // console.log(arg);
   const inquiryType = {
     type: 'list',
     name: 'template',
   }
 
-  if (arg.atlasSetOfConnectionFiles && !arg.localSetOfConnectionFiles) {
-    arg.connectionQuestions.push({
+  if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) {
+    connectionQuestions.push({
       ...inquiryType,
       message: 'Your nodejs API already uses the ATLAS server and db connection type.\n  Which of these actions would you like to take?',
-      choices: arg.atlas,
-      default: arg.atlas[0],
+      choices: userChoice.atlas,
+      default: userChoice.atlas[0],
     });
   }
 
-  if (arg.localSetOfConnectionFiles && !arg.atlasSetOfConnectionFiles) {
-    arg.connectionQuestions.push({
+  if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) {
+    connectionQuestions.push({
       ...inquiryType,
       message: 'Your nodejs API already uses the LOCAL server and db connection type.\n  Which of these actions would you like to take?',
-      choices: arg.local,
-      default: arg.local[0],
+      choices: userChoice.local,
+      default: userChoice.local[0],
     });
   }
 
-  if (arg.atlasSetOfConnectionFiles && arg.localSetOfConnectionFiles) {
-    arg.connectionQuestions.push({
+  if (atlasSetOfConnectionFiles && localSetOfConnectionFiles) {
+    connectionQuestions.push({
       ...inquiryType,
       message: 'Your nodejs API has both ATLAS and LOCAL server and db connection type (which is not recommended because of the confusion that comes with having both connection types). Choose one of the connection types below to continue:',
-      choices: [...arg.switchToOneOrContinueWithBoth],
-      default: arg.switchToOneOrContinueWithBoth[0],
+      choices: [...userChoice.switchToOneOrContinueWithBoth],
+      default: userChoice.switchToOneOrContinueWithBoth[0],
     });
   }
 
-  const noCompleteSetOfAtlasOrLocalConnectionFiles = !arg.atlasSetOfConnectionFiles || !arg.localSetOfConnectionFiles;
-  const noOneFileFromPairExists = !arg.atleastOneSetOfAtlasConnectionFileExists && !arg.atleastOneSetOfLocalConnectionFileExists;
+  const noCompleteSetOfAtlasOrLocalConnectionFiles = !atlasSetOfConnectionFiles || !localSetOfConnectionFiles;
+  const noOneFileFromPairExists = !atleastOneSetOfAtlasConnectionFileExists && !atleastOneSetOfLocalConnectionFileExists;
   if (noOneFileFromPairExists && noCompleteSetOfAtlasOrLocalConnectionFiles) {
-    arg.connectionQuestions.push({
+    connectionQuestions.push({
       ...inquiryType,
       message: 'Your nodejs API does not have the needed db and server connection files. This operation will install the connection files in the src/ folder. Choose one of the connection types below to continue:',
-      choices: arg.installNew,
-      default: arg.installNew[0],
+      choices: userChoice.installNew,
+      default: userChoice.installNew[0],
     });
   }
 
-  const oneFileFromPairExists = arg.atleastOneSetOfAtlasConnectionFileExists || arg.atleastOneSetOfLocalConnectionFileExists;
+  const oneFileFromPairExists = atleastOneSetOfAtlasConnectionFileExists || atleastOneSetOfLocalConnectionFileExists;
   if (oneFileFromPairExists && noCompleteSetOfAtlasOrLocalConnectionFiles) {
-    arg.connectionQuestions.push({
+    connectionQuestions.push({
       ...inquiryType,
       message: 'Your nodejs API does not have a complete set of db and server connection files. This operation will install a complete set in the src/ folder. Choose one of the connection types below to continue: ',
-      choices: arg.installNew,
-      default: arg.installNew[0],
+      choices: userChoice.installNew,
+      default: userChoice.installNew[0],
     });
   }
 }
 
 const selectedOptionOutcome = async (arg) => {
-  try {
+  const { templateName, connectionNameAnswers, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles } = arg;
+  // console.log(arg);
+  
+  try { // TODO: change this path to node_modules path? (when testing published package)
+    // Path to node-mongo-scripts (folders) from the API boilerplate template using the package
+    const atlasTemplateDirectory = `../../node-mongo-scripts/api-templates/${templateName}/atlas/`;
+    const localTemplateDirectory = `../../node-mongo-scripts/api-templates/${templateName}/local/`;
+
+    // Check these paths exist first (to prevent delete from happening if files are not copied due to error and vice versa)
+    await access(pathToCheck, fs.constants.R_OK);
+    await access(atlasTemplateDirectory, fs.constants.R_OK);
+    await access(localTemplateDirectory, fs.constants.R_OK);
+
     const selectedOptionIsSameAs = {
-      switchToAtlas: arg.connectionNameAnswers.template === arg.promptOption.switchToAtlas,
-      switchToLocal: arg.connectionNameAnswers.template === arg.promptOption.switchToLocal,
-      installAtlasConnection: arg.connectionNameAnswers.template === arg.promptOption.installAtlasConnection,
-      installLocalConnection: arg.connectionNameAnswers.template === arg.promptOption.installLocalConnection,
-      ignorePrompt: arg.connectionNameAnswers.template === arg.promptOption.ignorePrompt,
-      continueWithBoth: arg.connectionNameAnswers.template === arg.promptOption.continueWithBoth,
+      switchToAtlas: connectionNameAnswers.template === promptOption.switchToAtlas,
+      switchToLocal: connectionNameAnswers.template === promptOption.switchToLocal,
+      installAtlasConnection: connectionNameAnswers.template === promptOption.installAtlasConnection,
+      installLocalConnection: connectionNameAnswers.template === promptOption.installLocalConnection,
+      ignorePrompt: connectionNameAnswers.template === promptOption.ignorePrompt,
+      continueWithBoth: connectionNameAnswers.template === promptOption.continueWithBoth,
     }
 
     if (selectedOptionIsSameAs.switchToAtlas || selectedOptionIsSameAs.installAtlasConnection) {
-      await deletePreviousTemplateFiles(arg.dbServerFileNames.local, arg.pathToCheck);
-      const copyFilesDir = { templateDirectory: './atlas/', targetDirectory: arg.pathToCheck };
+      await deletePreviousTemplateFiles(dbServerFileNames.local, pathToCheck);
+      const copyFilesDir = { templateDirectory: atlasTemplateDirectory, targetDirectory: pathToCheck };
       await copyTemplateFiles({ ...copyFilesDir });
-      console.log('Atlas connection db and server connection files installed in src folder');
+      console.log('\nAtlas db and server connection files installed in src folder\n');
     }
 
     if (selectedOptionIsSameAs.switchToLocal || selectedOptionIsSameAs.installLocalConnection) {
-      await deletePreviousTemplateFiles(arg.dbServerFileNames.atlas, arg.pathToCheck);
-      const copyFilesDir = { templateDirectory: './local/', targetDirectory: arg.pathToCheck };
+      await deletePreviousTemplateFiles(dbServerFileNames.atlas, pathToCheck);
+      const copyFilesDir = { templateDirectory: localTemplateDirectory, targetDirectory: pathToCheck };
       await copyTemplateFiles({ ...copyFilesDir });
+      console.log('\nLocal db and server connection files installed in src folder\n');
     }
 
     if (selectedOptionIsSameAs.ignorePrompt || selectedOptionIsSameAs.continueWithBoth) {
-      if (arg.atlasSetOfConnectionFiles && !arg.localSetOfConnectionFiles) console.log('Atlas connection type retained');
-      if (arg.localSetOfConnectionFiles && !arg.atlasSetOfConnectionFiles) console.log('Local connection type retained');
-      if (arg.atlasSetOfConnectionFiles && arg.localSetOfConnectionFiles) console.log('Both connection types retained');
+      if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) console.log('\nAtlas db and server connection files retained\n');
+      if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) console.log('\nLocal db and server connection files retained\n');
+      if (atlasSetOfConnectionFiles && localSetOfConnectionFiles) console.log('\nBoth (Atlas and Local) db and server connection files retained\n');
     }
   } catch(err) {
-    console.log({ err }); // TODO: Display user understandable error message? Maybe also try use this here: await access(pathToCheck, fs.constants.R_OK);
+    console.log(err);
   }
 }
 
@@ -154,13 +169,11 @@ const connectionSetupTypePrompt = (templateName, pathToCheck, devIsFirstimer) =>
 
   const promptAndResponse = async () => {
     const connectionQuestions = [];
-    const fileSets = { atlasSetOfConnectionFiles, localSetOfConnectionFiles };
-    const atLeastOneConnectionFileExists = { atleastOneSetOfAtlasConnectionFileExists, atleastOneSetOfLocalConnectionFileExists };
-    questionPushAPIscripts({ connectionQuestions, ...fileSets, ...userChoice, ...atLeastOneConnectionFileExists});
-  
+    const questionPushArgs = { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, atleastOneSetOfAtlasConnectionFileExists, atleastOneSetOfLocalConnectionFileExists };
+    questionPushAPIscripts(questionPushArgs);
     const connectionNameAnswers = await inquirer.prompt(connectionQuestions);
   
-    const selectedOptionArgs = { connectionNameAnswers, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles };
+    const selectedOptionArgs = { templateName, connectionNameAnswers, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles };
     selectedOptionOutcome(selectedOptionArgs);
   }
 
@@ -175,19 +188,18 @@ const connectionSetupTypePrompt = (templateName, pathToCheck, devIsFirstimer) =>
     // hasAllConnectionFilesPair: atlasSetOfConnectionFiles && localSetOfConnectionFiles,
   };
 
-  console.log(dev);
-  const devNeedsPrompt = dev.isFirstTimer /*|| dev.hasNoConnectionFile || dev.hasNoCompleteConnectionFilesPair || dev.hasAllConnectionFilesPair*/;
-  devNeedsPrompt ? promptAndResponse() : null;
-}
+  // console.log(dev);
+  // const devNeedsPrompt = dev.isFirstTimer /*|| dev.hasNoConnectionFile || dev.hasNoCompleteConnectionFilesPair || dev.hasAllConnectionFilesPair*/;
+  // devNeedsPrompt ? promptAndResponse() : null;
 
+  promptAndResponse();
+}
 
 export const chooseNodeMongoApiDBServer = async (pathToCheck, templateName, devIsFirstimer) => {
   try {
     await access(pathToCheck, fs.constants.R_OK);
     connectionSetupTypePrompt(templateName, pathToCheck, devIsFirstimer);
   } catch(err) {
-    console.log(`Path or directory '${pathToCheck}' does not exist. Enter correct path as parameter/argument in the chooseNodeMongoApiDBServer() method`);
+    console.log(`\nPath or directory '${pathToCheck}' does not exist. Enter correct path as parameter/argument in the chooseNodeMongoApiDBServer() method\n`);
   }
 }
-
-// chooseNodeMongoApiDBServer('../node-mongo-api-boilerplate-templates/ts/src', 'ts', false);
