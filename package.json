@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/code-collabo/choose-node-mongo-scripts#readme",
   "dependencies": {
+    "chalk": "^4.1.0",
     "inquirer": "^9.2.0",
     "ncp": "^2.0.0"
   },

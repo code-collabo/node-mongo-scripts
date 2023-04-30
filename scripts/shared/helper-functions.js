@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { join } from 'path';
 import ncp from 'ncp';
 import { promisify } from 'util';
 
@@ -18,4 +19,11 @@ export const deletePreviousTemplateFiles = async (filesArray, folderPath) => {
   } catch(err) {
     console.log(err);
   }
+}
+
+export const createNewFileOrOverwriteExistingFileContent = async (options) => {
+  console.log(options);
+  const { targetDirectory, filePathName, content } = options;
+  fs.writeFileSync(join(targetDirectory, filePathName), content);
+  return;
 }

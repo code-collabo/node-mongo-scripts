@@ -3,12 +3,14 @@ import inquirer from 'inquirer';
 import { promisify } from 'util';
 import { questionPushAPIscripts } from './prompt-questions.js';
 import { selectedOptionOutcome } from './selected-option-outcome.js';
+import { createNewFileOrOverwriteExistingFileContent } from '../shared/helper-functions.js';
+import { user_info } from './save-user-info.js';
 
 const access = promisify(fs.access);
 
 // TODO: console.log and movement of console.log related code from the templates into this scripts package
 
-const connectionSetupTypePrompt = (templateName, pathToCheck, devIsFirstimer) => {
+const connectionSetupTypePrompt = async (templateName, pathToCheck) => {
   // return all files in the path you want to check
   const dirFiles = fs.readdirSync(pathToCheck, (files) => files);
 
@@ -59,6 +61,22 @@ const connectionSetupTypePrompt = (templateName, pathToCheck, devIsFirstimer) =>
     selectedOptionOutcome(selectedOptionArgs);
   }
 
+  promptsUserResponseAndOutcomes();
+
+  
+  
+  // user_info.firstTimer ? await promptsUserResponseAndOutcomes() : null;
+
+  // const content = 'const user_info = {\n  firstTimer: false,\n}\n\nexport { user_info };';
+
+  // // TODO: change this targetDirectory path to node_modules path? (when testing published package)
+  // createNewFileOrOverwriteExistingFileContent({ 
+  //   targetDirectory: '../../node-mongo-scripts/scripts/api/', 
+  //   filePathName: 'save-user-info.js', 
+  //   content 
+  // });
+
+
 
   // =======================================================================
   // const noCompleteSetOfAtlasOrLocalConnectionFiles = !atlasSetOfConnectionFiles || !localSetOfConnectionFiles;
@@ -77,13 +95,13 @@ const connectionSetupTypePrompt = (templateName, pathToCheck, devIsFirstimer) =>
   // devNeedsPrompt ? promptsUserResponseAndOutcomes() : null;
   // =======================================================================
 
-  promptsUserResponseAndOutcomes();
+  // promptsUserResponseAndOutcomes();
 }
 
-export const chooseNodeMongoApiDBServer = async (pathToCheck, templateName, devIsFirstimer) => {
+export const chooseNodeMongoApiDBServer = async (pathToCheck, templateName) => {
   try {
     await access(pathToCheck, fs.constants.R_OK);
-    connectionSetupTypePrompt(templateName, pathToCheck, devIsFirstimer);
+    connectionSetupTypePrompt(templateName, pathToCheck);
   } catch(err) {
     console.log(`\nPath or directory '${pathToCheck}' does not exist. Enter correct path as parameter/argument in the chooseNodeMongoApiDBServer() method\n`);
   }
