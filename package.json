@@ -28,5 +28,9 @@
   "dependencies": {
     "inquirer": "^9.2.0",
     "ncp": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.3",
+    "@types/ncp": "^2.0.5"
   }
 }
