@@ -6,6 +6,10 @@ import ncp from 'ncp';
 const access = promisify(fs.access);
 const copy = promisify(ncp);
 
+// TODO: Move all potententially reusable variables into connectionSetupTypePrompt() function
+// TODO: Move helper functions out of this file
+// TODO: console.log and movement of console.log related code from the templates into this scripts package
+
 const copyTemplateFiles = async (options) => {
   return copy(options.templateDirectory, options.targetDirectory, {
     clobber: false
@@ -130,8 +134,7 @@ const connectionSetupTypePrompt = (templateName, pathToCheck, devIsFirstimer) =>
   // return all files in the path you want to check
   const dirFiles = fs.readdirSync(pathToCheck, (files) => files);
 
-  let dbServerFileNames;
-  let ext;
+  let dbServerFileNames, ext;
 
   templateName === 'ts' ? ext = '.ts' : ext = '.js';
 
@@ -139,9 +142,6 @@ const connectionSetupTypePrompt = (templateName, pathToCheck, devIsFirstimer) =>
     atlas: [`db.atlas.connect${ext}`, `server.atlas${ext}`],
     local: [`db.local.connect${ext}`, `server.local${ext}`]
   }
-
-  // TODO: Confirm if you will need this. If not, remove it
-  // const allDbServerFileNames = dbServerFileNames.atlas.concat(dbServerFileNames.local);
 
   // Check for a pair of db file & server file (for atlas and local)
   const atlasSetOfConnectionFiles = dbServerFileNames.atlas.every(element => dirFiles.includes(element));
@@ -167,32 +167,33 @@ const connectionSetupTypePrompt = (templateName, pathToCheck, devIsFirstimer) =>
     switchToOneOrContinueWithBoth: [promptOption.installAtlasConnection, promptOption.installLocalConnection, promptOption.continueWithBoth]
   };
 
-  const promptAndResponse = async () => {
+  const promptsUserResponseAndOutcomes = async () => {
     const connectionQuestions = [];
     const questionPushArgs = { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, atleastOneSetOfAtlasConnectionFileExists, atleastOneSetOfLocalConnectionFileExists };
     questionPushAPIscripts(questionPushArgs);
     const connectionNameAnswers = await inquirer.prompt(connectionQuestions);
-  
     const selectedOptionArgs = { templateName, connectionNameAnswers, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles };
     selectedOptionOutcome(selectedOptionArgs);
   }
 
-  const noCompleteSetOfAtlasOrLocalConnectionFiles = !atlasSetOfConnectionFiles || !localSetOfConnectionFiles;
-  const oneFileFromPairExists = atleastOneSetOfAtlasConnectionFileExists || atleastOneSetOfLocalConnectionFileExists;
-  const noOneFileFromPairExists = !atleastOneSetOfAtlasConnectionFileExists || !atleastOneSetOfLocalConnectionFileExists;
 
-  const dev = {
-    isFirstTimer: devIsFirstimer,
-    // hasNoConnectionFile: noOneFileFromPairExists && noCompleteSetOfAtlasOrLocalConnectionFiles,
-    // hasNoCompleteConnectionFilesPair: noCompleteSetOfAtlasOrLocalConnectionFiles,
-    // hasAllConnectionFilesPair: atlasSetOfConnectionFiles && localSetOfConnectionFiles,
-  };
+
+  // const noCompleteSetOfAtlasOrLocalConnectionFiles = !atlasSetOfConnectionFiles || !localSetOfConnectionFiles;
+  // const oneFileFromPairExists = atleastOneSetOfAtlasConnectionFileExists || atleastOneSetOfLocalConnectionFileExists;
+  // const noOneFileFromPairExists = !atleastOneSetOfAtlasConnectionFileExists || !atleastOneSetOfLocalConnectionFileExists;
+
+  // const dev = {
+  //   isFirstTimer: devIsFirstimer,
+  //   // hasNoConnectionFile: noOneFileFromPairExists && noCompleteSetOfAtlasOrLocalConnectionFiles,
+  //   // hasNoCompleteConnectionFilesPair: noCompleteSetOfAtlasOrLocalConnectionFiles,
+  //   // hasAllConnectionFilesPair: atlasSetOfConnectionFiles && localSetOfConnectionFiles,
+  // };
 
   // console.log(dev);
   // const devNeedsPrompt = dev.isFirstTimer /*|| dev.hasNoConnectionFile || dev.hasNoCompleteConnectionFilesPair || dev.hasAllConnectionFilesPair*/;
-  // devNeedsPrompt ? promptAndResponse() : null;
+  // devNeedsPrompt ? promptsUserResponseAndOutcomes() : null;
 
-  promptAndResponse();
+  promptsUserResponseAndOutcomes();
 }
 
 export const chooseNodeMongoApiDBServer = async (pathToCheck, templateName, devIsFirstimer) => {
