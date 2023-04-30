@@ -27,7 +27,7 @@ const deletePreviousTemplateFiles = async (filesArray, folderPath) => {
 }
 
 const questionPushAPIscripts = (arg) => {
-  const { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, atleastOneSetOfAtlasConnectionFileExists, atleastOneSetOfLocalConnectionFileExists } = arg;
+  const { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists } = arg;
   // console.log(arg);
   const inquiryType = {
     type: 'list',
@@ -61,8 +61,6 @@ const questionPushAPIscripts = (arg) => {
     });
   }
 
-  const noCompleteSetOfAtlasOrLocalConnectionFiles = !atlasSetOfConnectionFiles || !localSetOfConnectionFiles;
-  const noOneFileFromPairExists = !atleastOneSetOfAtlasConnectionFileExists && !atleastOneSetOfLocalConnectionFileExists;
   if (noOneFileFromPairExists && noCompleteSetOfAtlasOrLocalConnectionFiles) {
     connectionQuestions.push({
       ...inquiryType,
@@ -72,7 +70,6 @@ const questionPushAPIscripts = (arg) => {
     });
   }
 
-  const oneFileFromPairExists = atleastOneSetOfAtlasConnectionFileExists || atleastOneSetOfLocalConnectionFileExists;
   if (oneFileFromPairExists && noCompleteSetOfAtlasOrLocalConnectionFiles) {
     connectionQuestions.push({
       ...inquiryType,
@@ -92,7 +89,7 @@ const selectedOptionOutcome = async (arg) => {
     const atlasTemplateDirectory = `../../node-mongo-scripts/api-templates/${templateName}/atlas/`;
     const localTemplateDirectory = `../../node-mongo-scripts/api-templates/${templateName}/local/`;
 
-    // Check these paths exist first (to prevent delete from happening if files are not copied due to error and vice versa)
+    // Check that all paths exist first (to prevent delete from happening if files are not copied due to error and vice versa)
     await access(pathToCheck, fs.constants.R_OK);
     await access(atlasTemplateDirectory, fs.constants.R_OK);
     await access(localTemplateDirectory, fs.constants.R_OK);
@@ -151,6 +148,11 @@ const connectionSetupTypePrompt = (templateName, pathToCheck, devIsFirstimer) =>
   const atleastOneSetOfAtlasConnectionFileExists = dbServerFileNames.atlas.some(element => dirFiles.includes(element));
   const atleastOneSetOfLocalConnectionFileExists = dbServerFileNames.local.some(element => dirFiles.includes(element));
 
+  // More pair checks (for atlas and/or local)
+  const noCompleteSetOfAtlasOrLocalConnectionFiles = !atlasSetOfConnectionFiles || !localSetOfConnectionFiles;
+  const noOneFileFromPairExists = !atleastOneSetOfAtlasConnectionFileExists && !atleastOneSetOfLocalConnectionFileExists;
+  const oneFileFromPairExists = atleastOneSetOfAtlasConnectionFileExists || atleastOneSetOfLocalConnectionFileExists;
+
   const promptOption = {
     switchToAtlas: 'Switch to atlas connection',
     switchToLocal: 'Switch to local connection',
@@ -169,7 +171,7 @@ const connectionSetupTypePrompt = (templateName, pathToCheck, devIsFirstimer) =>
 
   const promptsUserResponseAndOutcomes = async () => {
     const connectionQuestions = [];
-    const questionPushArgs = { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, atleastOneSetOfAtlasConnectionFileExists, atleastOneSetOfLocalConnectionFileExists };
+    const questionPushArgs = { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists };
     questionPushAPIscripts(questionPushArgs);
     const connectionNameAnswers = await inquirer.prompt(connectionQuestions);
     const selectedOptionArgs = { templateName, connectionNameAnswers, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles };
@@ -177,7 +179,7 @@ const connectionSetupTypePrompt = (templateName, pathToCheck, devIsFirstimer) =>
   }
 
 
-
+  // =======================================================================
   // const noCompleteSetOfAtlasOrLocalConnectionFiles = !atlasSetOfConnectionFiles || !localSetOfConnectionFiles;
   // const oneFileFromPairExists = atleastOneSetOfAtlasConnectionFileExists || atleastOneSetOfLocalConnectionFileExists;
   // const noOneFileFromPairExists = !atleastOneSetOfAtlasConnectionFileExists || !atleastOneSetOfLocalConnectionFileExists;
@@ -192,6 +194,7 @@ const connectionSetupTypePrompt = (templateName, pathToCheck, devIsFirstimer) =>
   // console.log(dev);
   // const devNeedsPrompt = dev.isFirstTimer /*|| dev.hasNoConnectionFile || dev.hasNoCompleteConnectionFilesPair || dev.hasAllConnectionFilesPair*/;
   // devNeedsPrompt ? promptsUserResponseAndOutcomes() : null;
+  // =======================================================================
 
   promptsUserResponseAndOutcomes();
 }
