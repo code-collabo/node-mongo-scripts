@@ -49,7 +49,8 @@ export const selectedOptionOutcome = async (arg) => {
       if (atlasSetOfConnectionFiles && localSetOfConnectionFiles) console.log('\nBoth (Atlas and Local) db and server connection files retained\n');
     }
 
-    npmRunPackageJsonScript({ script: 'dev:auto', currentWorkingDir: './'});
+    // TODO: this is where the 'firstTimer" true or false idea comes in (for the script below)
+    // npmRunPackageJsonScript({ script: 'dev:auto', currentWorkingDir: './'});
 
   } catch(err) {
     console.log(err);
