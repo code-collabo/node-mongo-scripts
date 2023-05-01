@@ -1,4 +1,4 @@
-export const questionPushAPIscripts = (arg) => {
+export const questionPushAPIscripts = (arg, continueWithBoth) => {
   const { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists } = arg;
   // console.log(arg);
   const inquiryType = {
@@ -24,12 +24,21 @@ export const questionPushAPIscripts = (arg) => {
     });
   }
 
-  if (atlasSetOfConnectionFiles && localSetOfConnectionFiles) {
+  if (atlasSetOfConnectionFiles && localSetOfConnectionFiles && !continueWithBoth) {
     connectionQuestions.push({
       ...inquiryType,
       message: 'Your nodejs API has both ATLAS and LOCAL server and db connection type (which is not recommended because of the confusion that comes with having both connection types). Choose one of the connection types below to continue:',
       choices: [...userChoice.switchToOneOrContinueWithBoth],
       default: userChoice.switchToOneOrContinueWithBoth[0],
+    });
+  }
+
+  if (atlasSetOfConnectionFiles && localSetOfConnectionFiles && continueWithBoth) {
+    connectionQuestions.push({
+      ...inquiryType,
+      message: 'Both (Atlas and Local) db and server connection files retained. Start server for which of the connection types?',
+      choices: userChoice.installNew,
+      default: userChoice.installNew[0],
     });
   }
 

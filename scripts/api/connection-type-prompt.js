@@ -53,12 +53,12 @@ const connectionSetupTypePrompt = async (templateName, pathToCheck) => {
   };
 
   const promptsUserResponseAndOutcomes = async () => {
-    const connectionQuestions = [];
+    let connectionQuestions = [];
     const questionPushArgs = { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists };
-    questionPushAPIscripts(questionPushArgs);
+    questionPushAPIscripts(questionPushArgs, false);
     const connectionNameAnswers = await inquirer.prompt(connectionQuestions);
     const selectedOptionArgs = { templateName, connectionNameAnswers, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles };
-    selectedOptionOutcome(selectedOptionArgs);
+    selectedOptionOutcome(selectedOptionArgs, questionPushArgs, connectionQuestions);
   }
 
   promptsUserResponseAndOutcomes();
