@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { promisify } from 'util';
-import { copyTemplateFiles, deletePreviousTemplateFiles, npmRunPackageJsonScript } from '../shared/helper-functions.js';
+import { copyTemplateFiles, deletePreviousTemplateFiles, npmRunPackageJsonScript } from '../shared/js/helper-functions.js';
 
 const access = promisify(fs.access);
 

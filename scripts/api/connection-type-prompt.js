@@ -3,7 +3,7 @@ import inquirer from 'inquirer';
 import { promisify } from 'util';
 import { questionPushAPIscripts } from './prompt-questions.js';
 import { selectedOptionOutcome } from './selected-option-outcome.js';
-import { createNewFileOrOverwriteExistingFileContent, npmRunPackageJsonScript } from '../shared/helper-functions.js';
+import { createNewFileOrOverwriteExistingFileContent, npmRunPackageJsonScript } from '../shared/js/helper-functions.js';
 import { user_info } from './save-user-info.js';
 
 const access = promisify(fs.access);
