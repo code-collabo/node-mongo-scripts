@@ -8,6 +8,19 @@ import { user_info } from './save-user-info.js';
 
 const access = promisify(fs.access);
 
+// const updateUserInfo = () => {
+//   // user_info.firstTimer ? await promptsUserResponseAndOutcomes() : null;
+
+//   const content = 'const user_info = {\n  firstTimer: false,\n}\n\nexport { user_info };';
+
+//   // TODO: change this targetDirectory path to node_modules path? (when testing published package)
+//   createNewFileOrOverwriteExistingFileContent({ 
+//     targetDirectory: '../../node-mongo-scripts/scripts/api/', 
+//     filePathName: 'save-user-info.js', 
+//     content
+//   });
+// }
+
 // TODO: console.log and movement of console.log related code from the templates into this scripts package
 
 const connectionSetupTypePrompt = async (templateName, pathToCheck) => {
@@ -55,7 +68,7 @@ const connectionSetupTypePrompt = async (templateName, pathToCheck) => {
   const promptsUserResponseAndOutcomes = async () => {
     let connectionQuestions = [];
     const questionPushArgs = { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists };
-    questionPushAPIscripts(questionPushArgs, false);
+    questionPushAPIscripts(questionPushArgs, false/*, user_info*/);
     const connectionNameAnswers = await inquirer.prompt(connectionQuestions);
     const selectedOptionArgs = { templateName, connectionNameAnswers, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles };
     selectedOptionOutcome(selectedOptionArgs, questionPushArgs, connectionQuestions);

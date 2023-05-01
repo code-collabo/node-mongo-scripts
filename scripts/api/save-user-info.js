@@ -1,5 +1,5 @@
 const user_info = {
-  firstTimer: false,
+  firstTimer: true,
 }
 
 export { user_info };

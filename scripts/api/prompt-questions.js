@@ -1,6 +1,9 @@
-export const questionPushAPIscripts = (arg, continueWithBoth) => {
+export const questionPushAPIscripts = (arg, continueWithBoth/*, user_info*/) => {
   const { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists } = arg;
   // console.log(arg);
+  
+  // console.log(user_info);
+  
   const inquiryType = {
     type: 'list',
     name: 'template',

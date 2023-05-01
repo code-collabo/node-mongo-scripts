@@ -3,6 +3,7 @@ import { promisify } from 'util';
 import { copyTemplateFiles, deletePreviousTemplateFiles, npmRunPackageJsonScript } from '../shared/helper-functions.js';
 import { questionPushAPIscripts } from './prompt-questions.js';
 import inquirer from 'inquirer';
+import { user_info } from './save-user-info.js';
 
 const access = promisify(fs.access);
 
@@ -51,25 +52,30 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
     selectionOptionIsSameAsAtlasOrLocal();
 
     if (selectedOptionIsSameAs.ignorePrompt || selectedOptionIsSameAs.continueWithBoth) {
-      if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) console.log('\nAtlas db and server connection files retained\n');
-      if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) console.log('\nLocal db and server connection files retained\n');
-      if (atlasSetOfConnectionFiles && localSetOfConnectionFiles) console.log('\nBoth (Atlas and Local) db and server connection files retained\n');
-    }
-
-    if (selectedOptionIsSameAs.continueWithBoth) {
-      connectionQuestions = [];
-      questionPushAPIscripts({ ...questionPushArgs, connectionQuestions }, selectedOptionIsSameAs.continueWithBoth);
-      connectionNameAnswers = await inquirer.prompt(connectionQuestions);
-      //=== Why did I need to repeat this object here before the correct values were applied to its property?
-      selectedOptionIsSameAs = {
-        switchToAtlas: connectionNameAnswers.template === promptOption.switchToAtlas,
-        switchToLocal: connectionNameAnswers.template === promptOption.switchToLocal,
-        installAtlasConnection: connectionNameAnswers.template === promptOption.installAtlasConnection,
-        installLocalConnection: connectionNameAnswers.template === promptOption.installLocalConnection,
-        ignorePrompt: connectionNameAnswers.template === promptOption.ignorePrompt,
-        continueWithBoth: connectionNameAnswers.template === promptOption.continueWithBoth,
-      } //===
-      selectionOptionIsSameAsAtlasOrLocal();
+      if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) {
+        console.log('\nAtlas db and server connection files retained\n');
+        npmRunPackageJsonScript({ script: 'dev:atlas', currentWorkingDir: './'});
+      }
+      if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) {
+        console.log('\nLocal db and server connection files retained\n');
+        npmRunPackageJsonScript({ script: 'dev:local', currentWorkingDir: './'});
+      }
+      if (atlasSetOfConnectionFiles && localSetOfConnectionFiles) {
+        console.log('\nBoth (Atlas and Local) db and server connection files retained\n');
+        connectionQuestions = [];
+        questionPushAPIscripts({ ...questionPushArgs, connectionQuestions }, selectedOptionIsSameAs.continueWithBoth/*, user_info*/);
+        connectionNameAnswers = await inquirer.prompt(connectionQuestions);
+        //=== Why did I need to repeat this object here before the correct values were applied to its property?
+        selectedOptionIsSameAs = {
+          switchToAtlas: connectionNameAnswers.template === promptOption.switchToAtlas,
+          switchToLocal: connectionNameAnswers.template === promptOption.switchToLocal,
+          installAtlasConnection: connectionNameAnswers.template === promptOption.installAtlasConnection,
+          installLocalConnection: connectionNameAnswers.template === promptOption.installLocalConnection,
+          ignorePrompt: connectionNameAnswers.template === promptOption.ignorePrompt,
+          continueWithBoth: connectionNameAnswers.template === promptOption.continueWithBoth,
+        } //===
+        selectionOptionIsSameAsAtlasOrLocal();
+      }
     }
 
 
