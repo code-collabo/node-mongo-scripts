@@ -1,9 +1,15 @@
 import fs from 'fs';
+import { spawn } from 'child_process';
 import { join } from 'path';
 import ncp from 'ncp';
 import { promisify } from 'util';
 
 const copy = promisify(ncp);
+
+export const npmRunPackageJsonScript = ({ script, currentWorkingDir }) => {
+  const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  spawn(npm, ['run', script], { cwd: currentWorkingDir, stdio: 'inherit' });
+}
 
 export const copyTemplateFiles = async (options) => {
   return copy(options.templateDirectory, options.targetDirectory, {

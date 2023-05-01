@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { promisify } from 'util';
-import { copyTemplateFiles, deletePreviousTemplateFiles } from '../shared/helper-functions.js';
+import { copyTemplateFiles, deletePreviousTemplateFiles, npmRunPackageJsonScript } from '../shared/helper-functions.js';
 
 const access = promisify(fs.access);
 
@@ -32,6 +32,7 @@ export const selectedOptionOutcome = async (arg) => {
       const copyFilesDir = { templateDirectory: atlasTemplateDirectory, targetDirectory: pathToCheck };
       await copyTemplateFiles({ ...copyFilesDir });
       console.log('\nAtlas db and server connection files installed in src folder\n');
+      npmRunPackageJsonScript({ script: 'dev:atlas', currentWorkingDir: './'});
     }
 
     if (selectedOptionIsSameAs.switchToLocal || selectedOptionIsSameAs.installLocalConnection) {
@@ -39,6 +40,7 @@ export const selectedOptionOutcome = async (arg) => {
       const copyFilesDir = { templateDirectory: localTemplateDirectory, targetDirectory: pathToCheck };
       await copyTemplateFiles({ ...copyFilesDir });
       console.log('\nLocal db and server connection files installed in src folder\n');
+      npmRunPackageJsonScript({ script: 'dev:local', currentWorkingDir: './'});
     }
 
     if (selectedOptionIsSameAs.ignorePrompt || selectedOptionIsSameAs.continueWithBoth) {
@@ -46,6 +48,9 @@ export const selectedOptionOutcome = async (arg) => {
       if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) console.log('\nLocal db and server connection files retained\n');
       if (atlasSetOfConnectionFiles && localSetOfConnectionFiles) console.log('\nBoth (Atlas and Local) db and server connection files retained\n');
     }
+
+    npmRunPackageJsonScript({ script: 'dev:auto', currentWorkingDir: './'});
+
   } catch(err) {
     console.log(err);
   }
