@@ -2,9 +2,9 @@ import fs from 'fs';
 import inquirer from 'inquirer';
 import { promisify } from 'util';
 import { questionPushAPIscripts } from './prompt-questions.js';
-import { selectedOptionOutcome } from './selected-option-outcome.js';
+import { runPackageJsonScriptWithoutPrompt, selectedOptionOutcome } from './selected-option-outcome.js';
 import { createNewFileOrOverwriteExistingFileContent, npmRunPackageJsonScript } from '../shared/helper-functions.js';
-import { user_info } from './save-user-info.js';
+import { user } from './save-user-info.js';
 
 const access = promisify(fs.access);
 
@@ -68,14 +68,20 @@ const connectionSetupTypePrompt = async (templateName, pathToCheck) => {
   const promptsUserResponseAndOutcomes = async () => {
     let connectionQuestions = [];
     const questionPushArgs = { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists };
-    questionPushAPIscripts(questionPushArgs, false/*, user_info*/);
+    questionPushAPIscripts(questionPushArgs, false);
     const connectionNameAnswers = await inquirer.prompt(connectionQuestions);
     const selectedOptionArgs = { templateName, connectionNameAnswers, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles };
     selectedOptionOutcome(selectedOptionArgs, questionPushArgs, connectionQuestions);
   }
 
-  promptsUserResponseAndOutcomes();
+  const npmLifeCycleEvent = process.env.npm_lifecycle_event;
+  const runningDevAutoScript = npmLifeCycleEvent === 'dev:auto';
+  const runningChangeConnection = npmLifeCycleEvent === 'change:connection';
 
+  if (!user.isFirstTimer && runningDevAutoScript) runPackageJsonScriptWithoutPrompt();
+  if (runningChangeConnection || (user.isFirstTimer && runningDevAutoScript)) promptsUserResponseAndOutcomes();
+
+  // user.isFirstimer, user.runDevAutoScript
   
   
   // user_info.firstTimer ? await promptsUserResponseAndOutcomes() : null;

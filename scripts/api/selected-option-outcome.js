@@ -1,11 +1,15 @@
 import fs from 'fs';
 import { promisify } from 'util';
-import { copyTemplateFiles, deletePreviousTemplateFiles, npmRunPackageJsonScript } from '../shared/helper-functions.js';
+import { copyTemplateFiles, createNewFileOrOverwriteExistingFileContent, deletePreviousTemplateFiles, npmRunPackageJsonScript } from '../shared/helper-functions.js';
 import { questionPushAPIscripts } from './prompt-questions.js';
 import inquirer from 'inquirer';
-import { user_info } from './save-user-info.js';
+import { user } from './save-user-info.js';
 
 const access = promisify(fs.access);
+
+const changeConnectionMessage = () => { 
+  if (user.isFirstTimer) console.log('\nYou can always change your connection using the command below:\n npm run change:connection\n\n'); 
+}
 
 export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQuestions) => {
   const { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles } = arg;
@@ -37,6 +41,7 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
         const copyFilesDir = { templateDirectory: atlasTemplateDirectory, targetDirectory: pathToCheck };
         await copyTemplateFiles({ ...copyFilesDir });
         console.log('\nAtlas db and server connection files installed in src folder\n');
+        changeConnectionMessage();
         npmRunPackageJsonScript({ script: 'dev:atlas', currentWorkingDir: './'});
       }
   
@@ -45,6 +50,7 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
         const copyFilesDir = { templateDirectory: localTemplateDirectory, targetDirectory: pathToCheck };
         await copyTemplateFiles({ ...copyFilesDir });
         console.log('\nLocal db and server connection files installed in src folder\n');
+        changeConnectionMessage();
         npmRunPackageJsonScript({ script: 'dev:local', currentWorkingDir: './'});
       }
     }
@@ -63,7 +69,7 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
       if (atlasSetOfConnectionFiles && localSetOfConnectionFiles) {
         console.log('\nBoth (Atlas and Local) db and server connection files retained\n');
         connectionQuestions = [];
-        questionPushAPIscripts({ ...questionPushArgs, connectionQuestions }, selectedOptionIsSameAs.continueWithBoth/*, user_info*/);
+        questionPushAPIscripts({ ...questionPushArgs, connectionQuestions }, selectedOptionIsSameAs.continueWithBoth);
         connectionNameAnswers = await inquirer.prompt(connectionQuestions);
         //=== Why did I need to repeat this object here before the correct values were applied to its property?
         selectedOptionIsSameAs = {
@@ -78,11 +84,19 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
       }
     }
 
-
-    // TODO: this is where the 'firstTimer" true or false idea comes in (for the script below)
-    // npmRunPackageJsonScript({ script: 'dev:auto', currentWorkingDir: './'});
+     // TODO: change this targetDirectory path to node_modules path? (when testing published package)
+     const content = 'const user = {\n  isFirstTimer: false,\n}\n\nexport { user };';
+     createNewFileOrOverwriteExistingFileContent({ 
+       targetDirectory: '../../node-mongo-scripts/scripts/api/', 
+       filePathName: 'save-user-info.js', 
+       content 
+     });
 
   } catch(err) {
     console.log(err);
   }
+}
+
+export const runPackageJsonScriptWithoutPrompt = () => {
+  console.log('running Package json script without prompt...');
 }

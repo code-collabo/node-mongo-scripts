@@ -1,18 +1,22 @@
-export const questionPushAPIscripts = (arg, continueWithBoth/*, user_info*/) => {
+import { user } from './save-user-info.js';
+
+export const questionPushAPIscripts = (arg, continueWithBoth) => {
   const { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists } = arg;
   // console.log(arg);
-  
-  // console.log(user_info);
   
   const inquiryType = {
     type: 'list',
     name: 'template',
   }
 
+  const atlasDefaultMessage = user.isFirstTimer ? 
+    'The default connection type is ATLAS i.e. the db and server connection files are set up to work with monogDB ATLAS. Choose whether you will like to continue with mongoDB ATLAS connection setup, or switch to LOCAL mongoDB connecion setup' 
+    : 'Your nodejs API already uses the ATLAS server and db connection type.\n  Which of these actions would you like to take?';
+
   if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) {
     connectionQuestions.push({
       ...inquiryType,
-      message: 'Your nodejs API already uses the ATLAS server and db connection type.\n  Which of these actions would you like to take?',
+      message: atlasDefaultMessage,
       choices: userChoice.atlas,
       default: userChoice.atlas[0],
     });

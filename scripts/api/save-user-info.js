@@ -1,5 +1,5 @@
-const user_info = {
-  firstTimer: true,
+const user = {
+  isFirstTimer: true
 }
 
-export { user_info };
+export { user };
