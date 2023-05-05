@@ -3,23 +3,9 @@ import inquirer from 'inquirer';
 import { promisify } from 'util';
 import { questionPushAPIscripts } from './prompt-questions.js';
 import { runPackageJsonScriptWithoutPrompt, selectedOptionOutcome } from './selected-option-outcome.js';
-import { createNewFileOrOverwriteExistingFileContent, npmRunPackageJsonScript } from '../shared/helper-functions.js';
 import { user } from './save-user-info.js';
 
 const access = promisify(fs.access);
-
-// const updateUserInfo = () => {
-//   // user_info.firstTimer ? await promptsUserResponseAndOutcomes() : null;
-
-//   const content = 'const user_info = {\n  firstTimer: false,\n}\n\nexport { user_info };';
-
-//   // TODO: change this targetDirectory path to node_modules path? (when testing published package)
-//   createNewFileOrOverwriteExistingFileContent({ 
-//     targetDirectory: '../../node-mongo-scripts/scripts/api/', 
-//     filePathName: 'save-user-info.js', 
-//     content
-//   });
-// }
 
 // TODO: console.log and movement of console.log related code from the templates into this scripts package
 
@@ -81,40 +67,6 @@ const connectionSetupTypePrompt = async (templateName, pathToCheck) => {
   if (!user.isFirstTimer && runningDevAutoScript) runPackageJsonScriptWithoutPrompt();
   if (runningChangeConnection || (user.isFirstTimer && runningDevAutoScript)) promptsUserResponseAndOutcomes();
 
-  // user.isFirstimer, user.runDevAutoScript
-  
-  
-  // user_info.firstTimer ? await promptsUserResponseAndOutcomes() : null;
-
-  // const content = 'const user_info = {\n  firstTimer: false,\n}\n\nexport { user_info };';
-
-  // // TODO: change this targetDirectory path to node_modules path? (when testing published package)
-  // createNewFileOrOverwriteExistingFileContent({ 
-  //   targetDirectory: '../../node-mongo-scripts/scripts/api/', 
-  //   filePathName: 'save-user-info.js', 
-  //   content 
-  // });
-
-
-
-  // =======================================================================
-  // const noCompleteSetOfAtlasOrLocalConnectionFiles = !atlasSetOfConnectionFiles || !localSetOfConnectionFiles;
-  // const oneFileFromPairExists = atleastOneSetOfAtlasConnectionFileExists || atleastOneSetOfLocalConnectionFileExists;
-  // const noOneFileFromPairExists = !atleastOneSetOfAtlasConnectionFileExists || !atleastOneSetOfLocalConnectionFileExists;
-
-  // const dev = {
-  //   isFirstTimer: devIsFirstimer,
-  //   // hasNoConnectionFile: noOneFileFromPairExists && noCompleteSetOfAtlasOrLocalConnectionFiles,
-  //   // hasNoCompleteConnectionFilesPair: noCompleteSetOfAtlasOrLocalConnectionFiles,
-  //   // hasAllConnectionFilesPair: atlasSetOfConnectionFiles && localSetOfConnectionFiles,
-  // };
-
-  // console.log(dev);
-  // const devNeedsPrompt = dev.isFirstTimer /*|| dev.hasNoConnectionFile || dev.hasNoCompleteConnectionFilesPair || dev.hasAllConnectionFilesPair*/;
-  // devNeedsPrompt ? promptsUserResponseAndOutcomes() : null;
-  // =======================================================================
-
-  // promptsUserResponseAndOutcomes();
 }
 
 export const chooseNodeMongoApiDBServer = async (pathToCheck, templateName) => {
@@ -124,6 +76,4 @@ export const chooseNodeMongoApiDBServer = async (pathToCheck, templateName) => {
   } catch(err) {
     console.log(`\nPath or directory '${pathToCheck}' does not exist. Enter correct path as parameter/argument in the chooseNodeMongoApiDBServer() method\n`);
   }
-
-  // npmRunPackageJsonScript({ script: 'dev:auto', currentWorkingDir: './'});
 }
