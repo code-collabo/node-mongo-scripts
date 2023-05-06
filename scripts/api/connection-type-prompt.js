@@ -1,11 +1,8 @@
 import fs from 'fs';
 import inquirer from 'inquirer';
-import { promisify } from 'util';
 import { questionPushAPIscripts } from './prompt-questions.js';
 import { runPackageJsonScriptWithoutPrompt, selectedOptionOutcome } from './selected-option-outcome.js';
 import { user } from './save-user-info.js';
-
-const access = promisify(fs.access);
 
 // TODO: console.log and movement of console.log related code from the templates into this scripts package
 
@@ -19,7 +16,7 @@ export const promptsUserResponseAndOutcomes = async (arg) => {
   selectedOptionOutcome(selectedOptionArgs, questionPushArgs, connectionQuestions);
 }
 
-const connectionSetupTypePrompt = async (templateName, pathToCheck) => {
+export const connectionSetupTypePrompt = async (templateName, pathToCheck) => {
   // return all files in the path you want to check
   const dirFiles = fs.readdirSync(pathToCheck, (files) => files);
 
@@ -68,13 +65,4 @@ const connectionSetupTypePrompt = async (templateName, pathToCheck) => {
   const promptsUserArgs = { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists };
   if (!user.isFirstTimer && runningDevAutoScript) runPackageJsonScriptWithoutPrompt(promptsUserArgs);
   if (runningChangeConnection || (user.isFirstTimer && runningDevAutoScript)) promptsUserResponseAndOutcomes(promptsUserArgs);
-}
-
-export const chooseNodeMongoApiDBServer = async (pathToCheck, templateName) => {
-  try {
-    await access(pathToCheck, fs.constants.R_OK);
-    connectionSetupTypePrompt(templateName, pathToCheck);
-  } catch(err) {
-    console.log(`\nPath or directory '${pathToCheck}' does not exist. Enter correct path as parameter/argument in the chooseNodeMongoApiDBServer() method\n`);
-  }
 }
