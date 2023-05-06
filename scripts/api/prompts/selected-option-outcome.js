@@ -1,16 +1,12 @@
 import fs from 'fs';
 import { promisify } from 'util';
-import { copyTemplateFiles, createNewFileOrOverwriteExistingFileContent, deletePreviousTemplateFiles, npmRunPackageJsonScript } from '../../shared/helpers.js';
+import { changeFirstTimer, copyTemplateFiles, deletePreviousTemplateFiles } from '../../shared/helpers.js';
 import { questionPushAPIscripts } from './prompt-questions.js';
 import inquirer from 'inquirer';
-import { user } from '../helpers/user.js';
-import { error } from '../../shared/console.js';
+import { error, success } from '../../shared/console.js';
+import { installAndConnect, setTemplateFileDirExt } from '../helpers/console.js';
 
 const access = promisify(fs.access);
-
-const changeConnectionMessage = () => { 
-  if (user.isFirstTimer) console.log('\nYou can always change your connection using the command below:\n npm run change:connection\n\n'); 
-}
 
 export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQuestions) => {
   const { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles } = arg;
@@ -19,8 +15,8 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
   
   try { // TODO: change this path to node_modules path? (when testing published package)
     // Path to node-mongo-scripts (folders) from the API boilerplate template using the package
-    const atlasTemplateDirectory = `../../node-mongo-scripts/api-templates/${templateName}/atlas/`;
-    const localTemplateDirectory = `../../node-mongo-scripts/api-templates/${templateName}/local/`;
+
+    const { atlasTemplateDirectory, localTemplateDirectory } = setTemplateFileDirExt(templateName);
 
     // Check that all paths exist first (to prevent delete from happening if files are not copied due to error and vice versa)
     await access(pathToCheck, fs.constants.R_OK);
@@ -41,18 +37,14 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
         await deletePreviousTemplateFiles(dbServerFileNames.local, pathToCheck);
         const copyFilesDir = { templateDirectory: atlasTemplateDirectory, targetDirectory: pathToCheck };
         await copyTemplateFiles({ ...copyFilesDir });
-        console.log('\nAtlas db and server connection files installed in src folder\n');
-        changeConnectionMessage();
-        npmRunPackageJsonScript({ script: 'dev:atlas', currentWorkingDir: './'});
+        installAndConnect('dev:atlas', '\n✔ Atlas db and server connection files installed in src folder\n');
       }
   
       if (selectedOptionIsSameAs.switchToLocal || selectedOptionIsSameAs.installLocalConnection) {
         await deletePreviousTemplateFiles(dbServerFileNames.atlas, pathToCheck);
         const copyFilesDir = { templateDirectory: localTemplateDirectory, targetDirectory: pathToCheck };
         await copyTemplateFiles({ ...copyFilesDir });
-        console.log('\nLocal db and server connection files installed in src folder\n');
-        changeConnectionMessage();
-        npmRunPackageJsonScript({ script: 'dev:local', currentWorkingDir: './'});
+        installAndConnect('dev:local', '\n✔ Local db and server connection files installed in src folder\n');
       }
     }
 
@@ -60,15 +52,13 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
 
     if (selectedOptionIsSameAs.ignorePrompt || selectedOptionIsSameAs.continueWithBoth) {
       if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) {
-        console.log('\nAtlas db and server connection files retained\n');
-        npmRunPackageJsonScript({ script: 'dev:atlas', currentWorkingDir: './'});
+        installAndConnect('dev:atlas', '\n✔ Atlas db and server connection files retained\n');
       }
       if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) {
-        console.log('\nLocal db and server connection files retained\n');
-        npmRunPackageJsonScript({ script: 'dev:local', currentWorkingDir: './'});
+        installAndConnect('dev:local', '\n✔ Local db and server connection files retained\n');
       }
       if (atlasSetOfConnectionFiles && localSetOfConnectionFiles) {
-        console.log('\nBoth (Atlas and Local) db and server connection files retained\n');
+        success('\n✔ Both (Atlas and Local) db and server connection files retained\n');
         connectionQuestions = [];
         questionPushAPIscripts({ ...questionPushArgs, connectionQuestions }, selectedOptionIsSameAs.continueWithBoth);
         connectionNameAnswers = await inquirer.prompt(connectionQuestions);
@@ -86,12 +76,11 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
     }
 
      // TODO: change this targetDirectory path to node_modules path? (when testing published package)
-     const content = 'const user = {\n  isFirstTimer: false,\n}\n\nexport { user };';
-     createNewFileOrOverwriteExistingFileContent({ 
-       targetDirectory: '../../node-mongo-scripts/scripts/api/helpers/', 
-       filePathName: 'user.js',
-       content 
-     });
+    changeFirstTimer({ 
+      targetDirectory: '../../node-mongo-scripts/scripts/api/helpers/', 
+      filePathName: 'user.js',
+      isFirstTimer: false
+    });
 
   } catch(err) {
     error(err);
@@ -100,7 +89,6 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
 
 export const runPackageJsonScriptWithoutPrompt = (arg) => {
   const { atlasSetOfConnectionFiles, localSetOfConnectionFiles } = arg;
-  if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) npmRunPackageJsonScript({ script: 'dev:atlas', currentWorkingDir: './'});
-  if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) npmRunPackageJsonScript({ script: 'dev:local', currentWorkingDir: './'});
-  if (atlasSetOfConnectionFiles && localSetOfConnectionFiles) npmRunPackageJsonScript({ script: 'dev:atlas', currentWorkingDir: './'}); // Temporary: run atlas connection here for now
+  if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) installAndConnect('dev:atlas', undefined);
+  if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) installAndConnect('dev:local', undefined);
 }

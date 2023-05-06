@@ -28,8 +28,14 @@ export const deletePreviousTemplateFiles = async (filesArray, folderPath) => {
   }
 }
 
-export const createNewFileOrOverwriteExistingFileContent = async (options) => {
+export const createNewFileOrOverwriteExistingFileContent = async (options) => { 
   const { targetDirectory, filePathName, content } = options;
   fs.writeFileSync(join(targetDirectory, filePathName), content);
   return;
+}
+
+export const changeFirstTimer = (options) => {
+  const content = `const user = {\n  isFirstTimer: ${options.isFirstTimer},\n}\n\nexport { user };`;
+  delete options.isFirstTimer; // delete prop so it doesn't show up in createNewFileOrOverwriteExistingFileContent() method
+  createNewFileOrOverwriteExistingFileContent({ content, ...options});
 }

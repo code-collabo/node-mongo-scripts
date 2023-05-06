@@ -3,6 +3,7 @@ import inquirer from 'inquirer';
 import { questionPushAPIscripts } from './prompt-questions.js';
 import { runPackageJsonScriptWithoutPrompt, selectedOptionOutcome } from './selected-option-outcome.js';
 import { user } from '../helpers/user.js';
+import { setTemplateFileDirExt } from '../helpers/console.js';
 
 export const promptsUserResponseAndOutcomes = async (arg) => {
   const { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists } = arg;
@@ -14,18 +15,11 @@ export const promptsUserResponseAndOutcomes = async (arg) => {
   selectedOptionOutcome(selectedOptionArgs, questionPushArgs, connectionQuestions);
 }
 
-export const connectionSetupTypePrompt = async (templateName, pathToCheck) => {
+export const connectionSetupTypePrompt = async (templateNameString, pathToCheck) => {
   // return all files in the path you want to check
   const dirFiles = fs.readdirSync(pathToCheck, (files) => files);
 
-  let dbServerFileNames, ext;
-
-  templateName === 'ts' ? ext = '.ts' : ext = '.js';
-
-  dbServerFileNames = {
-    atlas: [`db.atlas.connect${ext}`, `server.atlas${ext}`],
-    local: [`db.local.connect${ext}`, `server.local${ext}`]
-  }
+  const { templateName, dbServerFileNames } = setTemplateFileDirExt(templateNameString);
 
   // Check for a pair of db file & server file (for atlas and local)
   const atlasSetOfConnectionFiles = dbServerFileNames.atlas.every(element => dirFiles.includes(element));
