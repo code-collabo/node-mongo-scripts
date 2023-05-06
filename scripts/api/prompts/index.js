@@ -4,6 +4,7 @@ import { questionPushAPIscripts } from './prompt-questions.js';
 import { runPackageJsonScriptWithoutPrompt, selectedOptionOutcome } from './selected-option-outcome.js';
 import { user } from '../helpers/user.js';
 import { setTemplateFileDirExt } from '../helpers/console.js';
+import { runningDevScript, runningChangeConnection } from '../helpers/console.js';
 
 export const promptsUserResponseAndOutcomes = async (arg) => {
   const { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists } = arg;
@@ -50,11 +51,7 @@ export const connectionSetupTypePrompt = async (templateNameString, pathToCheck)
     switchToOneOrContinueWithBoth: [promptOption.installAtlasConnection, promptOption.installLocalConnection, promptOption.continueWithBoth]
   };
 
-  const npmLifeCycleEvent = process.env.npm_lifecycle_event;
-  const runningDevAutoScript = npmLifeCycleEvent === 'dev';
-  const runningChangeConnection = npmLifeCycleEvent === 'change:connection';
-
   const promptsUserArgs = { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists };
-  if (!user.isFirstTimer && runningDevAutoScript) runPackageJsonScriptWithoutPrompt(promptsUserArgs);
-  if (runningChangeConnection || (user.isFirstTimer && runningDevAutoScript)) promptsUserResponseAndOutcomes(promptsUserArgs);
+  if (!user.isFirstTimer && runningDevScript) runPackageJsonScriptWithoutPrompt(promptsUserArgs);
+  if (runningChangeConnection || (user.isFirstTimer && runningDevScript)) promptsUserResponseAndOutcomes(promptsUserArgs);
 }
