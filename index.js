@@ -1,3 +1,7 @@
+// Require esm module package to allow modules to work
+require = require('esm')(module/*, options*/);
+
+// The main index.js content starts here
 import fs from 'fs';
 import { promisify } from 'util';
 import { connectionSetupTypePrompt } from './scripts/api/prompts/index.js';
