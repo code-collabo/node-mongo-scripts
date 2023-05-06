@@ -9,6 +9,16 @@ const access = promisify(fs.access);
 
 // TODO: console.log and movement of console.log related code from the templates into this scripts package
 
+export const promptsUserResponseAndOutcomes = async (arg) => {
+  const { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists } = arg;
+  let connectionQuestions = [];
+  const questionPushArgs = { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists };
+  questionPushAPIscripts(questionPushArgs, false);
+  const connectionNameAnswers = await inquirer.prompt(connectionQuestions);
+  const selectedOptionArgs = { templateName, connectionNameAnswers, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles };
+  selectedOptionOutcome(selectedOptionArgs, questionPushArgs, connectionQuestions);
+}
+
 const connectionSetupTypePrompt = async (templateName, pathToCheck) => {
   // return all files in the path you want to check
   const dirFiles = fs.readdirSync(pathToCheck, (files) => files);
@@ -51,22 +61,13 @@ const connectionSetupTypePrompt = async (templateName, pathToCheck) => {
     switchToOneOrContinueWithBoth: [promptOption.installAtlasConnection, promptOption.installLocalConnection, promptOption.continueWithBoth]
   };
 
-  const promptsUserResponseAndOutcomes = async () => {
-    let connectionQuestions = [];
-    const questionPushArgs = { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists };
-    questionPushAPIscripts(questionPushArgs, false);
-    const connectionNameAnswers = await inquirer.prompt(connectionQuestions);
-    const selectedOptionArgs = { templateName, connectionNameAnswers, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles };
-    selectedOptionOutcome(selectedOptionArgs, questionPushArgs, connectionQuestions);
-  }
-
   const npmLifeCycleEvent = process.env.npm_lifecycle_event;
   const runningDevAutoScript = npmLifeCycleEvent === 'dev:auto';
   const runningChangeConnection = npmLifeCycleEvent === 'change:connection';
 
-  if (!user.isFirstTimer && runningDevAutoScript) runPackageJsonScriptWithoutPrompt();
-  if (runningChangeConnection || (user.isFirstTimer && runningDevAutoScript)) promptsUserResponseAndOutcomes();
-
+  const promptsUserArgs = { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists };
+  if (!user.isFirstTimer && runningDevAutoScript) runPackageJsonScriptWithoutPrompt(promptsUserArgs);
+  if (runningChangeConnection || (user.isFirstTimer && runningDevAutoScript)) promptsUserResponseAndOutcomes(promptsUserArgs);
 }
 
 export const chooseNodeMongoApiDBServer = async (pathToCheck, templateName) => {
