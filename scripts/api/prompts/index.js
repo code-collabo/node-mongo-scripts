@@ -51,7 +51,7 @@ export const connectionSetupTypePrompt = async (templateNameString, pathToCheck)
   };
 
   const npmLifeCycleEvent = process.env.npm_lifecycle_event;
-  const runningDevAutoScript = npmLifeCycleEvent === 'dev:auto';
+  const runningDevAutoScript = npmLifeCycleEvent === 'dev';
   const runningChangeConnection = npmLifeCycleEvent === 'change:connection';
 
   const promptsUserArgs = { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists };
