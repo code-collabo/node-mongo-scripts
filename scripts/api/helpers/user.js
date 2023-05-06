@@ -1,5 +1,5 @@
 const user = {
-  isFirstTimer: true
+  isFirstTimer: true,
 }
 
 export { user };

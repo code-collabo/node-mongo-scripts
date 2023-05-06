@@ -3,6 +3,7 @@ import { spawn } from 'child_process';
 import { join } from 'path';
 import ncp from 'ncp';
 import { promisify } from 'util';
+import { error } from './console.js';
 
 const copy = promisify(ncp);
 
@@ -23,13 +24,18 @@ export const deletePreviousTemplateFiles = async (filesArray, folderPath) => {
       fs.existsSync(`${folderPath}/${file}`) ? fs.unlinkSync(`${folderPath}/${file}`) : null;
     });
   } catch(err) {
-    console.log(err);
+    error(err);
   }
 }
 
-export const createNewFileOrOverwriteExistingFileContent = async (options) => {
-  console.log(options);
+export const createNewFileOrOverwriteExistingFileContent = async (options) => { 
   const { targetDirectory, filePathName, content } = options;
   fs.writeFileSync(join(targetDirectory, filePathName), content);
   return;
+}
+
+export const changeFirstTimer = (options) => {
+  const content = `const user = {\n  isFirstTimer: ${options.isFirstTimer},\n}\n\nexport { user };`;
+  delete options.isFirstTimer; // delete prop so it doesn't show up in createNewFileOrOverwriteExistingFileContent() method
+  createNewFileOrOverwriteExistingFileContent({ content, ...options});
 }

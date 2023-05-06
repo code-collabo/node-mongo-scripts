@@ -2,9 +2,9 @@ import fs from 'fs';
 import inquirer from 'inquirer';
 import { questionPushAPIscripts } from './prompt-questions.js';
 import { runPackageJsonScriptWithoutPrompt, selectedOptionOutcome } from './selected-option-outcome.js';
-import { user } from './save-user-info.js';
-
-// TODO: console.log and movement of console.log related code from the templates into this scripts package
+import { user } from '../helpers/user.js';
+import { setTemplateFileDirExt } from '../helpers/helpers.js';
+import { runningDevScript, runningChangeConnection } from '../helpers/helpers.js';
 
 export const promptsUserResponseAndOutcomes = async (arg) => {
   const { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists } = arg;
@@ -16,18 +16,11 @@ export const promptsUserResponseAndOutcomes = async (arg) => {
   selectedOptionOutcome(selectedOptionArgs, questionPushArgs, connectionQuestions);
 }
 
-export const connectionSetupTypePrompt = async (templateName, pathToCheck) => {
+export const connectionSetupTypePrompt = async (templateNameString, pathToCheck) => {
   // return all files in the path you want to check
   const dirFiles = fs.readdirSync(pathToCheck, (files) => files);
 
-  let dbServerFileNames, ext;
-
-  templateName === 'ts' ? ext = '.ts' : ext = '.js';
-
-  dbServerFileNames = {
-    atlas: [`db.atlas.connect${ext}`, `server.atlas${ext}`],
-    local: [`db.local.connect${ext}`, `server.local${ext}`]
-  }
+  const { templateName, dbServerFileNames } = setTemplateFileDirExt(templateNameString);
 
   // Check for a pair of db file & server file (for atlas and local)
   const atlasSetOfConnectionFiles = dbServerFileNames.atlas.every(element => dirFiles.includes(element));
@@ -58,11 +51,7 @@ export const connectionSetupTypePrompt = async (templateName, pathToCheck) => {
     switchToOneOrContinueWithBoth: [promptOption.installAtlasConnection, promptOption.installLocalConnection, promptOption.continueWithBoth]
   };
 
-  const npmLifeCycleEvent = process.env.npm_lifecycle_event;
-  const runningDevAutoScript = npmLifeCycleEvent === 'dev:auto';
-  const runningChangeConnection = npmLifeCycleEvent === 'change:connection';
-
   const promptsUserArgs = { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists };
-  if (!user.isFirstTimer && runningDevAutoScript) runPackageJsonScriptWithoutPrompt(promptsUserArgs);
-  if (runningChangeConnection || (user.isFirstTimer && runningDevAutoScript)) promptsUserResponseAndOutcomes(promptsUserArgs);
+  if (!user.isFirstTimer && runningDevScript) runPackageJsonScriptWithoutPrompt(promptsUserArgs);
+  if (runningChangeConnection || (user.isFirstTimer && runningDevScript)) promptsUserResponseAndOutcomes(promptsUserArgs);
 }

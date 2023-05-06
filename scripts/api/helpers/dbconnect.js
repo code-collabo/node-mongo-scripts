@@ -1,13 +1,7 @@
-import { spawn } from 'child_process';
-import { success, error, warning } from '../shared/consolemsg.js';
+import { success, error, warning } from '../../shared/console.js';
 // import package_json from '../../package.json' assert type json;
 
 /* eslint-disable no-console */
-
-export const npmRunPackageJsonScript = ({ script, currentWorkingDir }) => {
-  const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-  spawn(npm, ['run', script], { cwd: currentWorkingDir, stdio: 'inherit' });
-}
 
 export const server = (serverPort) => {
   try {

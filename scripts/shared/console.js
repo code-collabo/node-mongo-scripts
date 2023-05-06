@@ -1,7 +1,5 @@
 import chalk from 'chalk';
 
-/* eslint-disable no-console */
-
 export const success = (message) => {
   console.log( chalk.greenBright(message) );
 }
