@@ -4,7 +4,6 @@ import { copyTemplateFiles, createNewFileOrOverwriteExistingFileContent, deleteP
 import { questionPushAPIscripts } from './prompt-questions.js';
 import inquirer from 'inquirer';
 import { user } from './save-user-info.js';
-import { promptsUserResponseAndOutcomes } from './connection-type-prompt.js';
 
 const access = promisify(fs.access);
 

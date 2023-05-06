@@ -4,8 +4,6 @@ import { questionPushAPIscripts } from './prompt-questions.js';
 import { runPackageJsonScriptWithoutPrompt, selectedOptionOutcome } from './selected-option-outcome.js';
 import { user } from './save-user-info.js';
 
-// TODO: console.log and movement of console.log related code from the templates into this scripts package
-
 export const promptsUserResponseAndOutcomes = async (arg) => {
   const { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists } = arg;
   let connectionQuestions = [];
