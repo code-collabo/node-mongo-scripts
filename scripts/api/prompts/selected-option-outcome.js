@@ -1,9 +1,9 @@
 import fs from 'fs';
 import { promisify } from 'util';
-import { copyTemplateFiles, createNewFileOrOverwriteExistingFileContent, deletePreviousTemplateFiles, npmRunPackageJsonScript } from '../shared/helper-functions.js';
+import { copyTemplateFiles, createNewFileOrOverwriteExistingFileContent, deletePreviousTemplateFiles, npmRunPackageJsonScript } from '../../shared/helpers.js';
 import { questionPushAPIscripts } from './prompt-questions.js';
 import inquirer from 'inquirer';
-import { user } from './save-user-info.js';
+import { user } from '../helpers/user.js';
 
 const access = promisify(fs.access);
 
@@ -87,8 +87,8 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
      // TODO: change this targetDirectory path to node_modules path? (when testing published package)
      const content = 'const user = {\n  isFirstTimer: false,\n}\n\nexport { user };';
      createNewFileOrOverwriteExistingFileContent({ 
-       targetDirectory: '../../node-mongo-scripts/scripts/api/', 
-       filePathName: 'save-user-info.js', 
+       targetDirectory: '../../node-mongo-scripts/scripts/api/helpers/', 
+       filePathName: 'user.js',
        content 
      });
 

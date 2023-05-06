@@ -2,7 +2,7 @@ import fs from 'fs';
 import inquirer from 'inquirer';
 import { questionPushAPIscripts } from './prompt-questions.js';
 import { runPackageJsonScriptWithoutPrompt, selectedOptionOutcome } from './selected-option-outcome.js';
-import { user } from './save-user-info.js';
+import { user } from '../helpers/user.js';
 
 export const promptsUserResponseAndOutcomes = async (arg) => {
   const { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists } = arg;

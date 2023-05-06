@@ -28,7 +28,6 @@ export const deletePreviousTemplateFiles = async (filesArray, folderPath) => {
 }
 
 export const createNewFileOrOverwriteExistingFileContent = async (options) => {
-  console.log(options);
   const { targetDirectory, filePathName, content } = options;
   fs.writeFileSync(join(targetDirectory, filePathName), content);
   return;

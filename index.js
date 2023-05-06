@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { promisify } from 'util';
-import { connectionSetupTypePrompt } from './scripts/api/connection-type-prompt.js';
+import { connectionSetupTypePrompt } from './scripts/api/prompts/index.js';
 
 const access = promisify(fs.access);
 

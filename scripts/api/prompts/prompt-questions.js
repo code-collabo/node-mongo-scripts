@@ -1,4 +1,4 @@
-import { user } from './save-user-info.js';
+import { user } from '../helpers/user.js';
 
 export const questionPushAPIscripts = (arg, continueWithBoth) => {
   const { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists } = arg;
