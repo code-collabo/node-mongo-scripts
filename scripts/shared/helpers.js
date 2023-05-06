@@ -3,6 +3,7 @@ import { spawn } from 'child_process';
 import { join } from 'path';
 import ncp from 'ncp';
 import { promisify } from 'util';
+import { error } from './console.js';
 
 const copy = promisify(ncp);
 
@@ -23,7 +24,7 @@ export const deletePreviousTemplateFiles = async (filesArray, folderPath) => {
       fs.existsSync(`${folderPath}/${file}`) ? fs.unlinkSync(`${folderPath}/${file}`) : null;
     });
   } catch(err) {
-    console.log(err);
+    error(err);
   }
 }
 

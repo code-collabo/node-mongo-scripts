@@ -4,6 +4,7 @@ import { copyTemplateFiles, createNewFileOrOverwriteExistingFileContent, deleteP
 import { questionPushAPIscripts } from './prompt-questions.js';
 import inquirer from 'inquirer';
 import { user } from '../helpers/user.js';
+import { error } from '../../shared/console.js';
 
 const access = promisify(fs.access);
 
@@ -93,7 +94,7 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
      });
 
   } catch(err) {
-    console.log(err);
+    error(err);
   }
 }
 
