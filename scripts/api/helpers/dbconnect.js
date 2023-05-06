@@ -1,4 +1,3 @@
-import { spawn } from 'child_process';
 import { success, error, warning } from '../../shared/console.js';
 // import package_json from '../../package.json' assert type json;
 

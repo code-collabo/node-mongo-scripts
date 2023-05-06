@@ -3,8 +3,8 @@ import inquirer from 'inquirer';
 import { questionPushAPIscripts } from './prompt-questions.js';
 import { runPackageJsonScriptWithoutPrompt, selectedOptionOutcome } from './selected-option-outcome.js';
 import { user } from '../helpers/user.js';
-import { setTemplateFileDirExt } from '../helpers/console.js';
-import { runningDevScript, runningChangeConnection } from '../helpers/console.js';
+import { setTemplateFileDirExt } from '../helpers/helpers.js';
+import { runningDevScript, runningChangeConnection } from '../helpers/helpers.js';
 
 export const promptsUserResponseAndOutcomes = async (arg) => {
   const { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists } = arg;

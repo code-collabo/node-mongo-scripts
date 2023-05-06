@@ -4,7 +4,7 @@ import { changeFirstTimer, copyTemplateFiles, deletePreviousTemplateFiles } from
 import { questionPushAPIscripts } from './prompt-questions.js';
 import inquirer from 'inquirer';
 import { error, success } from '../../shared/console.js';
-import { installAndConnect, setTemplateFileDirExt } from '../helpers/console.js';
+import { installAndConnect, setTemplateFileDirExt } from '../helpers/helpers.js';
 
 const access = promisify(fs.access);
 

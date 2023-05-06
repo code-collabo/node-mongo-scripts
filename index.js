@@ -4,7 +4,7 @@ import { connectionSetupTypePrompt } from './scripts/api/prompts/index.js';
 import { success, warning, error } from './scripts/shared/console.js';
 import { changeFirstTimer, copyTemplateFiles, deletePreviousTemplateFiles } from './scripts/shared/helpers.js';
 import { user } from './scripts/api/helpers/user.js';
-import { setTemplateFileDirExt } from './scripts/api/helpers/console.js';
+import { setTemplateFileDirExt } from './scripts/api/helpers/helpers.js';
 
 const access = promisify(fs.access);
 
