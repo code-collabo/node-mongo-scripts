@@ -1,10 +1,11 @@
 import fs from 'fs';
 import { promisify } from 'util';
-import { changeFirstTimer, copyTemplateFiles, deletePreviousTemplateFiles } from '../../shared/helpers.js';
+import { changeUserSettings, copyTemplateFiles, deletePreviousTemplateFiles } from '../../shared/helpers.js';
 import { questionPushAPIscripts } from './prompt-questions.js';
 import inquirer from 'inquirer';
 import { error, success } from '../../shared/console.js';
 import { installAndConnect, nodemongoPaths, setTemplateFileDirExt } from '../helpers/helpers.js';
+import { user } from '../helpers/user.js';
 
 const access = promisify(fs.access);
 const { userObjFileLocation } = nodemongoPaths();
@@ -35,12 +36,21 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
 
     const templatePath = { templateName, pathToCheck };
 
+    const updateUserSettings = (pkgJsonScript) => {
+      changeUserSettings({
+        ...userObjFileLocation,
+        isFirstTimer: false,
+        savedConnection: pkgJsonScript.slice(4).toUpperCase(),
+      });
+    }
+
     const selectionOptionIsSameAsAtlasOrLocal = async () => {
       if (selectedOptionIsSameAs.switchToAtlas || selectedOptionIsSameAs.installAtlasConnection) {
         await deletePreviousTemplateFiles(dbServerFileNames.local, pathToCheck);
         const copyFilesDir = { templateDirectory: atlasTemplateDirectory, targetDirectory: pathToCheck };
         await copyTemplateFiles({ ...copyFilesDir });
         installAndConnect('dev:atlas', '\n✔ Atlas db and server connection files installed in src folder\n', templatePath);
+        updateUserSettings('dev:atlas');
       }
   
       if (selectedOptionIsSameAs.switchToLocal || selectedOptionIsSameAs.installLocalConnection) {
@@ -48,6 +58,7 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
         const copyFilesDir = { templateDirectory: localTemplateDirectory, targetDirectory: pathToCheck };
         await copyTemplateFiles({ ...copyFilesDir });
         installAndConnect('dev:local', '\n✔ Local db and server connection files installed in src folder\n', templatePath);
+        updateUserSettings('dev:local');
       }
     }
 
@@ -77,25 +88,26 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
         selectionOptionIsSameAsAtlasOrLocal();
       }
     }
-
-     // TODO: change this targetDirectory path to node_modules path? (when testing published package)
-    changeFirstTimer({ 
-      ...userObjFileLocation,
-      isFirstTimer: false
-    });
-
   } catch(err) {
     error(err);
   }
 }
 
 export const runPackageJsonScriptWithoutPrompt = (arg) => {
-  const { atlasSetOfConnectionFiles, localSetOfConnectionFiles, templateName, pathToCheck } = arg;
-  const templatePath = { templateName, pathToCheck };
-  if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) installAndConnect('dev:atlas', undefined, templatePath);
-  if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) installAndConnect('dev:local', undefined, templatePath);
-  if (localSetOfConnectionFiles && atlasSetOfConnectionFiles) {
-    // TODO: how do I get the previously saved connection of user when both connection files exist?
-    installAndConnect('dev:atlas', undefined, templatePath); // reminder that this last one runs when both pairs are present after you run "npm run dev" (& user is not fisrt timer)
+  try {
+    const { atlasSetOfConnectionFiles, localSetOfConnectionFiles, templateName, pathToCheck } = arg;
+    const templatePath = { templateName, pathToCheck };
+    if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) installAndConnect('dev:atlas', undefined, templatePath);
+    if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) installAndConnect('dev:local', undefined, templatePath);
+    if (localSetOfConnectionFiles && atlasSetOfConnectionFiles) {
+      let pkgJsonScript = '';
+      if (user.savedConnection === 'ATLAS') pkgJsonScript = 'dev:atlas';
+      if (user.savedConnection === 'LOCAL') pkgJsonScript = 'dev:local';
+        
+      // TODO: how do I get the previously saved connection of user when both connection files exist?
+      installAndConnect(pkgJsonScript, undefined, templatePath); // reminder that this last one runs when both pairs are present after you run "npm run dev" (& user is not fisrt timer)
+    }
+  } catch (err) {
+    error(err);
   }
 }

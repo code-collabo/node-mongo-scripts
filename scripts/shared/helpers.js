@@ -45,18 +45,10 @@ const userObjStringCleanup = (stringifiedObj) => {
   return stringifiedObj;
 }
 
-export const changeFirstTimer = (options) => {
-  const stringifiedObj = JSON.stringify({ ...user, isFirstTimer: options.isFirstTimer });
+export const changeUserSettings = async (options) => {
+  const stringifiedObj = JSON.stringify({ ...user, isFirstTimer: options.isFirstTimer, savedConnection: options.savedConnection });
   const cleanedUpStringifiedObj = userObjStringCleanup(stringifiedObj);
   const content = `const user = ${cleanedUpStringifiedObj}\n\nexport { user };`;
   delete options.isFirstTimer; // delete prop so it doesn't show up in createNewFileOrOverwriteExistingFileContent() method
-  createNewFileOrOverwriteExistingFileContent({ content, ...options});
-}
-
-export const changesavedConnection = (options) => {
-  const stringifiedObj = JSON.stringify({ ...user, savedConnection: options.savedConnection });
-  const cleanedUpStringifiedObj = userObjStringCleanup(stringifiedObj);
-  const content = `const user = ${cleanedUpStringifiedObj}\n\nexport { user };`;
-  delete options.savedConnection; // delete prop so it doesn't show up in createNewFileOrOverwriteExistingFileContent() method
-  createNewFileOrOverwriteExistingFileContent({ content, ...options});
+  await createNewFileOrOverwriteExistingFileContent({ content, ...options});
 }

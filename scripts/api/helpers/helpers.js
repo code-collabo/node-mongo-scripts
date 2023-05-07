@@ -35,9 +35,9 @@ export const setTemplateFileDirExt = (templateName, pathToCheck) => {
     local: [`db.local.connect${ext}`, `server.local${ext}`]
   }
 
-  const { nodemongoAPItemplatesFolder } = nodemongoPaths();
-  const atlasTemplateDirectory = `${nodemongoAPItemplatesFolder}/${templateName}/atlas/`;
-  const localTemplateDirectory = `${nodemongoAPItemplatesFolder}/${templateName}/local/`;
+  const { apiTemplatesFolder } = nodemongoPaths();
+  const atlasTemplateDirectory = `${apiTemplatesFolder}/${templateName}/atlas/`;
+  const localTemplateDirectory = `${apiTemplatesFolder}/${templateName}/local/`;
 
   // return all files in the path you want to check
   const dirFiles = fs.readdirSync(pathToCheck, (files) => files);
