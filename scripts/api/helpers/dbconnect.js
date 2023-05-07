@@ -1,7 +1,8 @@
 import { success, error, warning } from '../../shared/console.js';
-// import package_json from '../../package.json' assert type json;
 
 /* eslint-disable no-console */
+
+// FUTURE TODO: run node-mongo-helper functions from node-mongo-scripts package
 
 export const server = (serverPort) => {
   try {

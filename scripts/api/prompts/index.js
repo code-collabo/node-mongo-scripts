@@ -1,4 +1,3 @@
-import fs from 'fs';
 import inquirer from 'inquirer';
 import { questionPushAPIscripts } from './prompt-questions.js';
 import { runPackageJsonScriptWithoutPrompt, selectedOptionOutcome } from './selected-option-outcome.js';
@@ -17,18 +16,7 @@ export const promptsUserResponseAndOutcomes = async (arg) => {
 }
 
 export const connectionSetupTypePrompt = async (templateNameString, pathToCheck) => {
-  // return all files in the path you want to check
-  const dirFiles = fs.readdirSync(pathToCheck, (files) => files);
-
-  const { templateName, dbServerFileNames } = setTemplateFileDirExt(templateNameString);
-
-  // Check for a pair of db file & server file (for atlas and local)
-  const atlasSetOfConnectionFiles = dbServerFileNames.atlas.every(element => dirFiles.includes(element));
-  const localSetOfConnectionFiles = dbServerFileNames.local.every(element => dirFiles.includes(element));
-
-  // Check that at least one of the pairs exists (for atlas and local)
-  const atleastOneSetOfAtlasConnectionFileExists = dbServerFileNames.atlas.some(element => dirFiles.includes(element));
-  const atleastOneSetOfLocalConnectionFileExists = dbServerFileNames.local.some(element => dirFiles.includes(element));
+  const { templateName, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles, atleastOneSetOfAtlasConnectionFileExists, atleastOneSetOfLocalConnectionFileExists } = setTemplateFileDirExt(templateNameString, pathToCheck);
 
   // More pair checks (for atlas and/or local)
   const noCompleteSetOfAtlasOrLocalConnectionFiles = !atlasSetOfConnectionFiles || !localSetOfConnectionFiles;

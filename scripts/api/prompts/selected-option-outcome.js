@@ -1,22 +1,21 @@
 import fs from 'fs';
 import { promisify } from 'util';
-import { changeFirstTimer, copyTemplateFiles, deletePreviousTemplateFiles } from '../../shared/helpers.js';
+import { changeUserSettings, copyTemplateFiles, deletePreviousTemplateFiles } from '../../shared/helpers.js';
 import { questionPushAPIscripts } from './prompt-questions.js';
 import inquirer from 'inquirer';
-import { error, success } from '../../shared/console.js';
-import { installAndConnect, setTemplateFileDirExt } from '../helpers/helpers.js';
+import { error, success, warning } from '../../shared/console.js';
+import { installAndConnect, nodemongoPaths, runningChangeConnection, runningDevScript, setTemplateFileDirExt } from '../helpers/helpers.js';
+import { user } from '../helpers/user.js';
 
 const access = promisify(fs.access);
+const { userObjFileLocation } = nodemongoPaths();
 
 export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQuestions) => {
   const { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles } = arg;
   let { connectionNameAnswers } = arg;
-  // console.log(arg);
   
-  try { // TODO: change this path to node_modules path? (when testing published package)
-    // Path to node-mongo-scripts (folders) from the API boilerplate template using the package
-
-    const { atlasTemplateDirectory, localTemplateDirectory } = setTemplateFileDirExt(templateName);
+  try {
+    const { atlasTemplateDirectory, localTemplateDirectory } = setTemplateFileDirExt(templateName, pathToCheck);
 
     // Check that all paths exist first (to prevent delete from happening if files are not copied due to error and vice versa)
     await access(pathToCheck, fs.constants.R_OK);
@@ -32,19 +31,35 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
       continueWithBoth: connectionNameAnswers.template === promptOption.continueWithBoth,
     }
 
+    const templatePath = { templateName, pathToCheck };
+
+    const updateUserSettings = (pkgJsonScript) => {
+      let isFirstimerPropExists = user.hasOwnProperty('isFirstTimer'); // FUTURE TODO: Can we make this isFirstTimerPropExists check reusable everywhere (we might be needing it)?
+      let isFirstTimerValue;
+      if (runningDevScript) isFirstTimerValue = false;
+      if (runningChangeConnection) isFirstTimerValue = isFirstimerPropExists ? user.isFirstTimer : true;
+      changeUserSettings({
+        ...userObjFileLocation,
+        isFirstTimer: isFirstTimerValue,
+        savedConnection: pkgJsonScript.slice(4).toUpperCase(),
+      });
+    }
+
     const selectionOptionIsSameAsAtlasOrLocal = async () => {
       if (selectedOptionIsSameAs.switchToAtlas || selectedOptionIsSameAs.installAtlasConnection) {
         await deletePreviousTemplateFiles(dbServerFileNames.local, pathToCheck);
         const copyFilesDir = { templateDirectory: atlasTemplateDirectory, targetDirectory: pathToCheck };
         await copyTemplateFiles({ ...copyFilesDir });
-        installAndConnect('dev:atlas', '\n✔ Atlas db and server connection files installed in src folder\n');
+        installAndConnect('dev:atlas', '\n✔ Atlas db and server connection files installed in src folder\n', templatePath);
+        updateUserSettings('dev:atlas');
       }
   
       if (selectedOptionIsSameAs.switchToLocal || selectedOptionIsSameAs.installLocalConnection) {
         await deletePreviousTemplateFiles(dbServerFileNames.atlas, pathToCheck);
         const copyFilesDir = { templateDirectory: localTemplateDirectory, targetDirectory: pathToCheck };
         await copyTemplateFiles({ ...copyFilesDir });
-        installAndConnect('dev:local', '\n✔ Local db and server connection files installed in src folder\n');
+        installAndConnect('dev:local', '\n✔ Local db and server connection files installed in src folder\n', templatePath);
+        updateUserSettings('dev:local');
       }
     }
 
@@ -52,10 +67,10 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
 
     if (selectedOptionIsSameAs.ignorePrompt || selectedOptionIsSameAs.continueWithBoth) {
       if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) {
-        installAndConnect('dev:atlas', '\n✔ Atlas db and server connection files retained\n');
+        installAndConnect('dev:atlas', '\n✔ Atlas db and server connection files retained\n', templatePath);
       }
       if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) {
-        installAndConnect('dev:local', '\n✔ Local db and server connection files retained\n');
+        installAndConnect('dev:local', '\n✔ Local db and server connection files retained\n', templatePath);
       }
       if (atlasSetOfConnectionFiles && localSetOfConnectionFiles) {
         success('\n✔ Both (Atlas and Local) db and server connection files retained\n');
@@ -74,21 +89,29 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
         selectionOptionIsSameAsAtlasOrLocal();
       }
     }
-
-     // TODO: change this targetDirectory path to node_modules path? (when testing published package)
-    changeFirstTimer({ 
-      targetDirectory: '../../node-mongo-scripts/scripts/api/helpers/', 
-      filePathName: 'user.js',
-      isFirstTimer: false
-    });
-
   } catch(err) {
     error(err);
   }
 }
 
 export const runPackageJsonScriptWithoutPrompt = (arg) => {
-  const { atlasSetOfConnectionFiles, localSetOfConnectionFiles } = arg;
-  if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) installAndConnect('dev:atlas', undefined);
-  if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) installAndConnect('dev:local', undefined);
+  try {
+    const { atlasSetOfConnectionFiles, localSetOfConnectionFiles, templateName, pathToCheck } = arg;
+    const templatePath = { templateName, pathToCheck };
+    if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) installAndConnect('dev:atlas', undefined, templatePath);
+    if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) installAndConnect('dev:local', undefined, templatePath);
+    if (localSetOfConnectionFiles && atlasSetOfConnectionFiles) {
+      let pkgJsonScript = '';
+      const connectionTypeNotRecognised = user.savedConnection !== 'ATLAS' && user.savedConnection !== 'LOCAL';
+      if (user.savedConnection === 'ATLAS' || connectionTypeNotRecognised) pkgJsonScript = 'dev:atlas';
+      if (user.savedConnection === 'LOCAL') pkgJsonScript = 'dev:local';
+      const recognisedConnectionType = user.savedConnection === 'ATLAS' || user.savedConnection === 'LOCAL';
+      if (recognisedConnectionType && runningDevScript) installAndConnect(pkgJsonScript, undefined, templatePath);
+      if (connectionTypeNotRecognised && runningDevScript) {
+        warning(`ℹ node-mongo does not recognise the connection type "${user.savedConnection}" in your settings. Please run this command to set your preferred connection type first:\n\nnpm run change:connection \n`);
+      }
+    }
+  } catch (err) {
+    error(err);
+  }
 }
