@@ -3,7 +3,7 @@ import { promisify } from 'util';
 import { changeUserSettings, copyTemplateFiles, deletePreviousTemplateFiles } from '../../shared/helpers.js';
 import { questionPushAPIscripts } from './prompt-questions.js';
 import inquirer from 'inquirer';
-import { error, success } from '../../shared/console.js';
+import { error, success, warning } from '../../shared/console.js';
 import { installAndConnect, nodemongoPaths, setTemplateFileDirExt } from '../helpers/helpers.js';
 import { user } from '../helpers/user.js';
 
@@ -101,11 +101,14 @@ export const runPackageJsonScriptWithoutPrompt = (arg) => {
     if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) installAndConnect('dev:local', undefined, templatePath);
     if (localSetOfConnectionFiles && atlasSetOfConnectionFiles) {
       let pkgJsonScript = '';
-      if (user.savedConnection === 'ATLAS') pkgJsonScript = 'dev:atlas';
+      const connectionTypeNotRecognised = user.savedConnection !== 'ATLAS' && user.savedConnection !== 'LOCAL';
+      if (user.savedConnection === 'ATLAS' || connectionTypeNotRecognised) pkgJsonScript = 'dev:atlas';
       if (user.savedConnection === 'LOCAL') pkgJsonScript = 'dev:local';
-        
-      // TODO: how do I get the previously saved connection of user when both connection files exist?
-      installAndConnect(pkgJsonScript, undefined, templatePath); // reminder that this last one runs when both pairs are present after you run "npm run dev" (& user is not fisrt timer)
+      const recognisedConnectionType = user.savedConnection === 'ATLAS' || user.savedConnection === 'LOCAL';
+      if (recognisedConnectionType) installAndConnect(pkgJsonScript, undefined, templatePath);
+      if (connectionTypeNotRecognised) {
+        warning(`ℹ node-mongo does not recognise the connection type "${user.savedConnection}" in your settings. Please run this command to set your preferred connection type first:\n\nnpm run change:connection \n`);
+      }
     }
   } catch (err) {
     error(err);

@@ -24,7 +24,7 @@ export const chooseNodeMongoApiDBServer = async (pathToCheck, templateName) => {
 
 export const restoreToFirstTimer = async (pathToCheck, templateName) => {
   if (user.isFirstTimer) {
-    warning('ℹ You do not need the restore command yet: the restore command is for resetting your connection type if ever you wish to change it after the "npm run dev" command saves it for you \n')
+    warning('ℹ You do not need the restore command yet: the restore command is for resetting your connection type if ever you wish to change it after the "npm run dev" command or the "npm run change:connection" command saves it for you \n')
   } else {
     // Restore default (atlas) connection files
     const { dbServerFileNames, atlasTemplateDirectory } = setTemplateFileDirExt(templateName, pathToCheck);
