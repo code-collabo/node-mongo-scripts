@@ -1,6 +1,6 @@
 const user = {
   isFirstTimer: true,
-  savedConnection: 'ATLAS'
+  savedConnection: ''
 }
 
 export { user };
