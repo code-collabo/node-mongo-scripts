@@ -4,7 +4,7 @@ import { changeUserSettings, copyTemplateFiles, deletePreviousTemplateFiles } fr
 import { questionPushAPIscripts } from './prompt-questions.js';
 import inquirer from 'inquirer';
 import { error, success, warning } from '../../shared/console.js';
-import { installAndConnect, nodemongoPaths, setTemplateFileDirExt } from '../helpers/helpers.js';
+import { installAndConnect, nodemongoPaths, runningChangeConnection, runningDevScript, setTemplateFileDirExt } from '../helpers/helpers.js';
 import { user } from '../helpers/user.js';
 
 const access = promisify(fs.access);
@@ -37,9 +37,13 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
     const templatePath = { templateName, pathToCheck };
 
     const updateUserSettings = (pkgJsonScript) => {
+      let isFirstimerPropExists = user.hasOwnProperty('isFirstTimer'); // FUTURE TODO: Can we make this isFirstTimerPropExists check reusable everywhere (we might be needing it)?
+      let isFirstTimerValue;
+      if (runningDevScript) isFirstTimerValue = false;
+      if (runningChangeConnection) isFirstTimerValue = isFirstimerPropExists ? user.isFirstTimer : true;
       changeUserSettings({
         ...userObjFileLocation,
-        isFirstTimer: false,
+        isFirstTimer: isFirstTimerValue,
         savedConnection: pkgJsonScript.slice(4).toUpperCase(),
       });
     }
@@ -105,8 +109,8 @@ export const runPackageJsonScriptWithoutPrompt = (arg) => {
       if (user.savedConnection === 'ATLAS' || connectionTypeNotRecognised) pkgJsonScript = 'dev:atlas';
       if (user.savedConnection === 'LOCAL') pkgJsonScript = 'dev:local';
       const recognisedConnectionType = user.savedConnection === 'ATLAS' || user.savedConnection === 'LOCAL';
-      if (recognisedConnectionType) installAndConnect(pkgJsonScript, undefined, templatePath);
-      if (connectionTypeNotRecognised) {
+      if (recognisedConnectionType && runningDevScript) installAndConnect(pkgJsonScript, undefined, templatePath);
+      if (connectionTypeNotRecognised && runningDevScript) {
         warning(`ℹ node-mongo does not recognise the connection type "${user.savedConnection}" in your settings. Please run this command to set your preferred connection type first:\n\nnpm run change:connection \n`);
       }
     }

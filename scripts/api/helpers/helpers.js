@@ -65,9 +65,11 @@ export const setTemplateFileDirExt = (templateName, pathToCheck) => {
 const changeConnectionMessage = (message, pkgJsonScript, templatePath) => {
   // const { atlasSetOfConnectionFiles, localSetOfConnectionFiles } = setTemplateFileDirExt(templatePath.templateName, templatePath.pathToCheck);
   // const bothConnectionFilePairsExist = atlasSetOfConnectionFiles && localSetOfConnectionFiles;
+  if (message) success(message);
   if (runningDevScript) {
     if (user.isFirstTimer) {
-      success('✔ Connection setup type saved for every other time you run the "npm run dev" command');
+      success(`✔ Connection setup type "${pkgJsonScript.slice(4).toUpperCase()}" saved for every other time you run the "npm run dev" command`);
+      success(`\n✔ Running: npm run ${pkgJsonScript}`);
     }
     if (!user.isFirstTimer) {
       success(`ℹ Using your saved connection setting: ${pkgJsonScript.slice(4).toUpperCase()}\n  Running: npm run ${pkgJsonScript}`);
@@ -77,11 +79,10 @@ const changeConnectionMessage = (message, pkgJsonScript, templatePath) => {
       warning('\nℹ Or you can use this other command to change your connection:\n npm run change:connection');
     }
   }
-  if (runningChangeConnection || (user.isFirstTimer && runningDevScript)) success(`${runningChangeConnection ? '': '\n'}ℹ Running: npm run ${pkgJsonScript}`);
+  if (runningChangeConnection) warning('ℹ Start the server with the command:\n  npm run dev\n');
 }
 
 export const installAndConnect = (pkgJsonScript, message, templatePath) => {
-  if (message) success(message);
   changeConnectionMessage(message, pkgJsonScript, templatePath);
-  npmRunPackageJsonScript({ script: pkgJsonScript, currentWorkingDir: './'})
+  if (runningDevScript) npmRunPackageJsonScript({ script: pkgJsonScript, currentWorkingDir: './'})
 }
