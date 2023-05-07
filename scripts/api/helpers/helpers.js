@@ -3,6 +3,24 @@ import { success, warning } from '../../shared/console.js';
 import { npmRunPackageJsonScript } from '../../shared/helpers.js';
 import { user } from './user.js';
 
+export const nodemongoPaths = () => {
+  const nodemongoRoot = '../../node-mongo-scripts';
+  const nodemongoAPItemplatesFolder =  `${nodemongoRoot}/api-templates`;
+  const nodemongoScriptsFolder =  `${nodemongoRoot}/scripts`;
+  const nodemongoAPIhelpersFolder = `${nodemongoScriptsFolder}/api/helpers/`;
+
+  const userObjFileLocation = { 
+    targetDirectory: nodemongoAPIhelpersFolder, 
+    filePathName: 'user.js',
+  }
+
+  return {
+    root: nodemongoRoot,
+    apiTemplatesFolder: nodemongoAPItemplatesFolder,
+    userObjFileLocation
+  }
+}
+
 const npmLifeCycleEvent = process.env.npm_lifecycle_event;
 export const runningDevScript = npmLifeCycleEvent === 'dev';
 export const runningChangeConnection = npmLifeCycleEvent === 'change:connection';
@@ -17,8 +35,9 @@ export const setTemplateFileDirExt = (templateName, pathToCheck) => {
     local: [`db.local.connect${ext}`, `server.local${ext}`]
   }
 
-  const atlasTemplateDirectory = `../../node-mongo-scripts/api-templates/${templateName}/atlas/`;
-  const localTemplateDirectory = `../../node-mongo-scripts/api-templates/${templateName}/local/`;
+  const { nodemongoAPItemplatesFolder } = nodemongoPaths();
+  const atlasTemplateDirectory = `${nodemongoAPItemplatesFolder}/${templateName}/atlas/`;
+  const localTemplateDirectory = `${nodemongoAPItemplatesFolder}/${templateName}/local/`;
 
   // return all files in the path you want to check
   const dirFiles = fs.readdirSync(pathToCheck, (files) => files);

@@ -8,9 +8,10 @@ import { connectionSetupTypePrompt } from './scripts/api/prompts/index.js';
 import { success, warning, error } from './scripts/shared/console.js';
 import { changeFirstTimer, copyTemplateFiles, deletePreviousTemplateFiles } from './scripts/shared/helpers.js';
 import { user } from './scripts/api/helpers/user.js';
-import { setTemplateFileDirExt } from './scripts/api/helpers/helpers.js';
+import { nodemongoPaths, setTemplateFileDirExt } from './scripts/api/helpers/helpers.js';
 
 const access = promisify(fs.access);
+const { userObjFileLocation } = nodemongoPaths();
 
 export const chooseNodeMongoApiDBServer = async (pathToCheck, templateName) => {
   try {
@@ -33,8 +34,7 @@ export const restoreToFirstTimer = async (pathToCheck, templateName) => {
     success('✔ Default (Atlas) db and server connection files restored in src folder\n');
     // Restore user to first timer
     changeFirstTimer({ 
-      targetDirectory: '../../node-mongo-scripts/scripts/api/helpers/', 
-      filePathName: 'user.js',
+      ...userObjFileLocation,
        isFirstTimer: true
     });
     success('✔ Previously saved connection setup type removed');

@@ -4,9 +4,10 @@ import { changeFirstTimer, copyTemplateFiles, deletePreviousTemplateFiles } from
 import { questionPushAPIscripts } from './prompt-questions.js';
 import inquirer from 'inquirer';
 import { error, success } from '../../shared/console.js';
-import { installAndConnect, setTemplateFileDirExt } from '../helpers/helpers.js';
+import { installAndConnect, nodemongoPaths, setTemplateFileDirExt } from '../helpers/helpers.js';
 
 const access = promisify(fs.access);
+const { userObjFileLocation } = nodemongoPaths();
 
 export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQuestions) => {
   const { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles } = arg;
@@ -79,8 +80,7 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
 
      // TODO: change this targetDirectory path to node_modules path? (when testing published package)
     changeFirstTimer({ 
-      targetDirectory: '../../node-mongo-scripts/scripts/api/helpers/', 
-      filePathName: 'user.js',
+      ...userObjFileLocation,
       isFirstTimer: false
     });
 

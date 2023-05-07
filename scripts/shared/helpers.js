@@ -4,6 +4,7 @@ import { join } from 'path';
 import ncp from 'ncp';
 import { promisify } from 'util';
 import { error } from './console.js';
+import { user } from '../api/helpers/user.js';
 
 const copy = promisify(ncp);
 
@@ -34,8 +35,28 @@ export const createNewFileOrOverwriteExistingFileContent = async (options) => {
   return;
 }
 
+const userObjStringCleanup = (stringifiedObj) => {
+  // TODO: Can we dymaically replace the object keys instead? e.g. isFirstTimer, savedConnection (so that we will not need to manually type names of new keys that we will eventually add to user object, in the replace methods below)
+  stringifiedObj = stringifiedObj.replace('"isFirstTimer"', '\n  isFirstTimer')
+                                 .replace('"savedConnection"', '\n  savedConnection')
+                                 .replace('}', '\n}')
+                                 .replaceAll('"', '\'')
+                                 .replaceAll(':', ': ')
+  return stringifiedObj;
+}
+
 export const changeFirstTimer = (options) => {
-  const content = `const user = {\n  isFirstTimer: ${options.isFirstTimer},\n}\n\nexport { user };`;
+  const stringifiedObj = JSON.stringify({ ...user, isFirstTimer: options.isFirstTimer });
+  const cleanedUpStringifiedObj = userObjStringCleanup(stringifiedObj);
+  const content = `const user = ${cleanedUpStringifiedObj}\n\nexport { user };`;
   delete options.isFirstTimer; // delete prop so it doesn't show up in createNewFileOrOverwriteExistingFileContent() method
+  createNewFileOrOverwriteExistingFileContent({ content, ...options});
+}
+
+export const changesavedConnection = (options) => {
+  const stringifiedObj = JSON.stringify({ ...user, savedConnection: options.savedConnection });
+  const cleanedUpStringifiedObj = userObjStringCleanup(stringifiedObj);
+  const content = `const user = ${cleanedUpStringifiedObj}\n\nexport { user };`;
+  delete options.savedConnection; // delete prop so it doesn't show up in createNewFileOrOverwriteExistingFileContent() method
   createNewFileOrOverwriteExistingFileContent({ content, ...options});
 }
