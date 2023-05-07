@@ -16,7 +16,7 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
   try { // TODO: change this path to node_modules path? (when testing published package)
     // Path to node-mongo-scripts (folders) from the API boilerplate template using the package
 
-    const { atlasTemplateDirectory, localTemplateDirectory } = setTemplateFileDirExt(templateName);
+    const { atlasTemplateDirectory, localTemplateDirectory } = setTemplateFileDirExt(templateName, pathToCheck);
 
     // Check that all paths exist first (to prevent delete from happening if files are not copied due to error and vice versa)
     await access(pathToCheck, fs.constants.R_OK);
@@ -32,19 +32,21 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
       continueWithBoth: connectionNameAnswers.template === promptOption.continueWithBoth,
     }
 
+    const templatePath = { templateName, pathToCheck };
+
     const selectionOptionIsSameAsAtlasOrLocal = async () => {
       if (selectedOptionIsSameAs.switchToAtlas || selectedOptionIsSameAs.installAtlasConnection) {
         await deletePreviousTemplateFiles(dbServerFileNames.local, pathToCheck);
         const copyFilesDir = { templateDirectory: atlasTemplateDirectory, targetDirectory: pathToCheck };
         await copyTemplateFiles({ ...copyFilesDir });
-        installAndConnect('dev:atlas', '\n✔ Atlas db and server connection files installed in src folder\n');
+        installAndConnect('dev:atlas', '\n✔ Atlas db and server connection files installed in src folder\n', templatePath);
       }
   
       if (selectedOptionIsSameAs.switchToLocal || selectedOptionIsSameAs.installLocalConnection) {
         await deletePreviousTemplateFiles(dbServerFileNames.atlas, pathToCheck);
         const copyFilesDir = { templateDirectory: localTemplateDirectory, targetDirectory: pathToCheck };
         await copyTemplateFiles({ ...copyFilesDir });
-        installAndConnect('dev:local', '\n✔ Local db and server connection files installed in src folder\n');
+        installAndConnect('dev:local', '\n✔ Local db and server connection files installed in src folder\n', templatePath);
       }
     }
 
@@ -52,10 +54,10 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
 
     if (selectedOptionIsSameAs.ignorePrompt || selectedOptionIsSameAs.continueWithBoth) {
       if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) {
-        installAndConnect('dev:atlas', '\n✔ Atlas db and server connection files retained\n');
+        installAndConnect('dev:atlas', '\n✔ Atlas db and server connection files retained\n', templatePath);
       }
       if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) {
-        installAndConnect('dev:local', '\n✔ Local db and server connection files retained\n');
+        installAndConnect('dev:local', '\n✔ Local db and server connection files retained\n', templatePath);
       }
       if (atlasSetOfConnectionFiles && localSetOfConnectionFiles) {
         success('\n✔ Both (Atlas and Local) db and server connection files retained\n');
@@ -88,7 +90,12 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
 }
 
 export const runPackageJsonScriptWithoutPrompt = (arg) => {
-  const { atlasSetOfConnectionFiles, localSetOfConnectionFiles } = arg;
-  if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) installAndConnect('dev:atlas', undefined);
-  if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) installAndConnect('dev:local', undefined);
+  const { atlasSetOfConnectionFiles, localSetOfConnectionFiles, templateName, pathToCheck } = arg;
+  const templatePath = { templateName, pathToCheck };
+  if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) installAndConnect('dev:atlas', undefined, templatePath);
+  if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) installAndConnect('dev:local', undefined, templatePath);
+  if (localSetOfConnectionFiles && atlasSetOfConnectionFiles) {
+    // TODO: how do I get the previously saved connection of user when both connection files exist?
+    installAndConnect('dev:atlas', undefined, templatePath); // reminder that this last one runs when both pairs are present after you run "npm run dev" (& user is not fisrt timer)
+  }
 }
