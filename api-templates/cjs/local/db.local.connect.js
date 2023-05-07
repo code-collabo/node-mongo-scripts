@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const { afterLocalDBconnectSuccessful, connectToDBunsuccessful }  = require('./lib/dbconnect');
+const { afterLocalDBconnectSuccessful, connectToDBunsuccessful } = require('../node-mongo-helpers');
 
 dotenv.config();
 
