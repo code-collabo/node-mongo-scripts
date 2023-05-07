@@ -39,7 +39,7 @@ export const setTemplateFileDirExt = (templateName, pathToCheck) => {
   const atlasTemplateDirectory = `${apiTemplatesFolder}/${templateName}/atlas/`;
   const localTemplateDirectory = `${apiTemplatesFolder}/${templateName}/local/`;
 
-  // return all files in the path you want to check
+  // Return all files in the path you want to check
   const dirFiles = fs.readdirSync(pathToCheck, (files) => files);
 
   // Check for a pair of db file & server file (for atlas and local)
@@ -63,8 +63,6 @@ export const setTemplateFileDirExt = (templateName, pathToCheck) => {
 }
 
 const changeConnectionMessage = (message, pkgJsonScript, templatePath) => {
-  // const { atlasSetOfConnectionFiles, localSetOfConnectionFiles } = setTemplateFileDirExt(templatePath.templateName, templatePath.pathToCheck);
-  // const bothConnectionFilePairsExist = atlasSetOfConnectionFiles && localSetOfConnectionFiles;
   if (message) success(message);
   if (runningDevScript) {
     if (user.isFirstTimer) {

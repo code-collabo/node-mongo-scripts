@@ -13,11 +13,8 @@ const { userObjFileLocation } = nodemongoPaths();
 export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQuestions) => {
   const { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles } = arg;
   let { connectionNameAnswers } = arg;
-  // console.log(arg);
   
-  try { // TODO: change this path to node_modules path? (when testing published package)
-    // Path to node-mongo-scripts (folders) from the API boilerplate template using the package
-
+  try {
     const { atlasTemplateDirectory, localTemplateDirectory } = setTemplateFileDirExt(templateName, pathToCheck);
 
     // Check that all paths exist first (to prevent delete from happening if files are not copied due to error and vice versa)

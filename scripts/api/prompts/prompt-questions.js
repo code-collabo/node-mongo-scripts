@@ -2,7 +2,6 @@ import { user } from '../helpers/user.js';
 
 export const questionPushAPIscripts = (arg, continueWithBoth) => {
   const { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists } = arg;
-  // console.log(arg);
   
   const inquiryType = {
     type: 'list',
