@@ -24,11 +24,11 @@ export const connectionSetupTypePrompt = async (templateNameString, pathToCheck)
   const oneFileFromPairExists = atleastOneSetOfAtlasConnectionFileExists || atleastOneSetOfLocalConnectionFileExists;
 
   const promptOption = {
-    switchToAtlas: 'Switch to atlas connection',
-    switchToLocal: 'Switch to local connection',
-    ignorePrompt: 'Ignore prompt',
-    installAtlasConnection: 'Atlas connection',
-    installLocalConnection: 'Local connection',
+    switchToAtlas: 'Switch to ATLAS connection',
+    switchToLocal: 'Switch to LOCAL connection',
+    ignorePrompt: 'Ignore (but continue dev server)',
+    installAtlasConnection: 'ATLAS connection',
+    installLocalConnection: 'LOCAL connection',
     continueWithBoth: 'Continue using both (not recommended)',
   };
 

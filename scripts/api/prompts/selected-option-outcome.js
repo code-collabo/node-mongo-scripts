@@ -68,9 +68,11 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
     if (selectedOptionIsSameAs.ignorePrompt || selectedOptionIsSameAs.continueWithBoth) {
       if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) {
         installAndConnect('dev:atlas', '\n✔ Atlas db and server connection files retained\n', templatePath);
+        updateUserSettings('dev:atlas');
       }
       if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) {
         installAndConnect('dev:local', '\n✔ Local db and server connection files retained\n', templatePath);
+        updateUserSettings('dev:local');
       }
       if (atlasSetOfConnectionFiles && localSetOfConnectionFiles) {
         success('\n✔ Both (Atlas and Local) db and server connection files retained\n');
