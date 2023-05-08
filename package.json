@@ -1,6 +1,6 @@
 {
   "name": "@code-collabo/node-mongo-scripts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Package containing enhancements useful to any, or both of the node-mongo CLI and API boilerplate templates",
   "main": "index.js",
   "publicConfig": {

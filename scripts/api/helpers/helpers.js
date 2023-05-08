@@ -4,7 +4,7 @@ import { npmRunPackageJsonScript } from '../../shared/helpers.js';
 import { user } from './user.js';
 
 export const nodemongoPaths = () => {
-  const nodemongoRoot = '@code-collabo/node-mongo-scripts';
+  const nodemongoRoot = 'node_modules/@code-collabo/node-mongo-scripts';
   const nodemongoAPItemplatesFolder =  `${nodemongoRoot}/api-templates`;
   const nodemongoScriptsFolder =  `${nodemongoRoot}/scripts`;
   const nodemongoAPIhelpersFolder = `${nodemongoScriptsFolder}/api/helpers/`;
