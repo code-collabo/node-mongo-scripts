@@ -26,13 +26,15 @@ export const connectionSetupTypePrompt = async (templateNameString, pathToCheck)
   const promptOption = {
     switchToAtlas: 'Switch to ATLAS connection',
     switchToLocal: 'Switch to LOCAL connection',
-    ignorePrompt: 'Ignore (but continue dev server)',
+    ignorePrompt: 'Ignore (but continue dev server)', // come back later to take closer look at this ignorePrompt
     installAtlasConnection: 'ATLAS connection',
     installLocalConnection: 'LOCAL connection',
+    continueWithDefault: 'Continue with default (ATLAS) connection',
     continueWithBoth: 'Continue using both (not recommended)',
   };
 
   const userChoice = {
+    default: [promptOption.continueWithDefault, promptOption.switchToLocal],
     atlas: [promptOption.switchToLocal, promptOption.ignorePrompt],
     local: [promptOption.switchToAtlas, promptOption.ignorePrompt],
     installNew: [promptOption.installAtlasConnection, promptOption.installLocalConnection],

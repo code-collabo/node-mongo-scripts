@@ -16,8 +16,8 @@ export const questionPushAPIscripts = (arg, continueWithBoth) => {
     connectionQuestions.push({
       ...inquiryType,
       message: atlasDefaultMessage,
-      choices: userChoice.atlas,
-      default: userChoice.atlas[0],
+      choices: userChoice.default,
+      default: userChoice.default[0],
     });
   }
 

@@ -23,7 +23,7 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
     await access(localTemplateDirectory, fs.constants.R_OK);
 
     let selectedOptionIsSameAs = {
-      switchToAtlas: connectionNameAnswers.template === promptOption.switchToAtlas,
+      switchToAtlasOrDefault: connectionNameAnswers.template === promptOption.switchToAtlas || connectionNameAnswers.template === promptOption.continueWithDefault,
       switchToLocal: connectionNameAnswers.template === promptOption.switchToLocal,
       installAtlasConnection: connectionNameAnswers.template === promptOption.installAtlasConnection,
       installLocalConnection: connectionNameAnswers.template === promptOption.installLocalConnection,
@@ -46,7 +46,7 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
     }
 
     const selectionOptionIsSameAsAtlasOrLocal = async () => {
-      if (selectedOptionIsSameAs.switchToAtlas || selectedOptionIsSameAs.installAtlasConnection) {
+      if (selectedOptionIsSameAs.switchToAtlasOrDefault || selectedOptionIsSameAs.installAtlasConnection) {
         await deletePreviousTemplateFiles(dbServerFileNames.local, pathToCheck);
         const copyFilesDir = { templateDirectory: atlasTemplateDirectory, targetDirectory: pathToCheck };
         await copyTemplateFiles({ ...copyFilesDir });
@@ -80,8 +80,9 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
         questionPushAPIscripts({ ...questionPushArgs, connectionQuestions }, selectedOptionIsSameAs.continueWithBoth);
         connectionNameAnswers = await inquirer.prompt(connectionQuestions);
         //=== Why did I need to repeat this object here before the correct values were applied to its property?
+        //=== FUTURE TODO: To prevent repeat, maybe make selectedOptionIsSameAs a function, that returns an object, and that collects connectionNameAnswers.template and/or promptOption as arguments (and destructure where necessary if need be)
         selectedOptionIsSameAs = {
-          switchToAtlas: connectionNameAnswers.template === promptOption.switchToAtlas,
+          switchToAtlasOrDefault: connectionNameAnswers.template === promptOption.switchToAtlas || connectionNameAnswers.template === promptOption.continueWithDefault,
           switchToLocal: connectionNameAnswers.template === promptOption.switchToLocal,
           installAtlasConnection: connectionNameAnswers.template === promptOption.installAtlasConnection,
           installLocalConnection: connectionNameAnswers.template === promptOption.installLocalConnection,
