@@ -16,7 +16,7 @@ export const promptsUserResponseAndOutcomes = async (arg) => {
   selectedOptionOutcome(selectedOptionArgs, questionPushArgs, connectionQuestions);
 }
 
-export const connectionSetupTypePrompt = async (templateNameString, pathToCheck) => {
+export const connectionSetupTypePrompt = async (pathToCheck, templateNameString) => {
   const { templateName, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles, atleastOneSetOfAtlasConnectionFileExists, atleastOneSetOfLocalConnectionFileExists } = setTemplateFileDirExt(templateNameString, pathToCheck);
 
   // More pair checks (for atlas and/or local)

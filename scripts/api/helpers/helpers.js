@@ -1,10 +1,10 @@
 import fs from 'fs';
-import { success, warning } from '../../shared/console.js';
-import { npmRunPackageJsonScript } from '../../shared/helpers.js';
+import { error, success, warning } from '../../shared/console.js';
+import { changeUserSettings, copyTemplateFiles, deletePreviousTemplateFiles, npmRunPackageJsonScript } from '../../shared/helpers.js';
 import { user } from './user.js';
 
 export const nodemongoPaths = () => {
-  const nodemongoRoot = 'node_modules/@code-collabo/node-mongo-scripts';
+  const nodemongoRoot = '../../node-mongo-scripts';
   const nodemongoAPItemplatesFolder =  `${nodemongoRoot}/api-templates`;
   const nodemongoScriptsFolder =  `${nodemongoRoot}/scripts`;
   const nodemongoAPIhelpersFolder = `${nodemongoScriptsFolder}/api/helpers/`;
@@ -24,6 +24,7 @@ export const nodemongoPaths = () => {
 const npmLifeCycleEvent = process.env.npm_lifecycle_event;
 export const runningDevScript = npmLifeCycleEvent === 'dev';
 export const runningChangeConnection = npmLifeCycleEvent === 'dev:change';
+export const runningRestoreConnection = npmLifeCycleEvent === 'dev:restore';
 
 export const setTemplateFileDirExt = (templateName, pathToCheck) => {
   let dbServerFileNames, ext;
@@ -83,4 +84,30 @@ const changeConnectionMessage = (message, pkgJsonScript, templatePath) => {
 export const installAndConnect = (pkgJsonScript, message, templatePath) => {
   changeConnectionMessage(message, pkgJsonScript, templatePath);
   if (runningDevScript) npmRunPackageJsonScript({ script: pkgJsonScript, currentWorkingDir: './'})
+}
+
+export const restoreToFirstTimer = async (pathToCheck, templateName) => {
+  try {
+    if (user.isFirstTimer) {
+      warning('ℹ You do not need the restore command yet: the restore command is for resetting your connection type if ever you wish to change it after the "npm run dev" command saves it for you \n');
+    } else {
+      // Restore default (atlas) connection files
+      const { dbServerFileNames, atlasTemplateDirectory } = setTemplateFileDirExt(templateName, pathToCheck);
+      await deletePreviousTemplateFiles(dbServerFileNames.local, pathToCheck);
+      const copyFilesDir = { templateDirectory: atlasTemplateDirectory, targetDirectory: pathToCheck };
+      await copyTemplateFiles({ ...copyFilesDir });
+      success('✔ Default (Atlas) db and server connection files restored in src folder\n');
+      // Restore user to first timer and saved connection to node-mongo's default connection
+      const { userObjFileLocation } = nodemongoPaths();
+      changeUserSettings({
+        ...userObjFileLocation,
+        isFirstTimer: true,
+        savedConnection: 'ATLAS',
+      });
+      success('✔ Previously saved connection setup type removed');
+      warning('\nℹ You will now have the option to set preferred connection type again the next time you start the server with the command:\nnpm run dev\n');
+    }
+  } catch(err) {
+    error(err);
+  }
 }
