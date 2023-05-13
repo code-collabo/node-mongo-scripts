@@ -111,7 +111,7 @@ export const runPackageJsonScriptWithoutPrompt = (arg) => {
       const recognisedConnectionType = user.savedConnection === 'ATLAS' || user.savedConnection === 'LOCAL';
       if (recognisedConnectionType && runningDevScript) installAndConnect(pkgJsonScript, undefined, templatePath);
       if (connectionTypeNotRecognised && runningDevScript) {
-        warning(`ℹ node-mongo does not recognise the connection type "${user.savedConnection}" in your settings. Please run this command to set your preferred connection type first:\n\nnpm run change:connection \n`);
+        warning(`ℹ node-mongo does not recognise the connection type "${user.savedConnection}" in your settings. Please run this command to set your preferred connection type first:\n\nnpm run dev:change \n`);
       }
     }
   } catch (err) {

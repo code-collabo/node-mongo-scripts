@@ -23,7 +23,7 @@ export const nodemongoPaths = () => {
 
 const npmLifeCycleEvent = process.env.npm_lifecycle_event;
 export const runningDevScript = npmLifeCycleEvent === 'dev';
-export const runningChangeConnection = npmLifeCycleEvent === 'change:connection';
+export const runningChangeConnection = npmLifeCycleEvent === 'dev:change';
 
 export const setTemplateFileDirExt = (templateName, pathToCheck) => {
   let dbServerFileNames, ext;
@@ -74,7 +74,7 @@ const changeConnectionMessage = (message, pkgJsonScript, templatePath) => {
     }
     if (message) {
       warning('\nℹ If you ever wish to reset your connection type before running the "npm run dev" command again, use the command:\n npm run dev:restore');
-      warning('\nℹ Or you can use this other command to change your connection:\n npm run change:connection');
+      warning('\nℹ Or you can use this other command to change your connection:\n npm run dev:change');
     }
   }
   if (runningChangeConnection) warning('ℹ Start the server with the command:\n  npm run dev\n');
