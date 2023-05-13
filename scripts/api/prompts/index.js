@@ -4,6 +4,7 @@ import { runPackageJsonScriptWithoutPrompt, selectedOptionOutcome } from './sele
 import { user } from '../helpers/user.js';
 import { setTemplateFileDirExt } from '../helpers/helpers.js';
 import { runningDevScript, runningChangeConnection } from '../helpers/helpers.js';
+import { warning } from '../../shared/console.js';
 
 export const promptsUserResponseAndOutcomes = async (arg) => {
   const { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists } = arg;
@@ -26,7 +27,7 @@ export const connectionSetupTypePrompt = async (templateNameString, pathToCheck)
   const promptOption = {
     switchToAtlas: 'Switch to ATLAS connection',
     switchToLocal: 'Switch to LOCAL connection',
-    ignorePrompt: 'Ignore (but continue dev server)', // come back later to take closer look at this ignorePrompt
+    ignorePrompt: 'Ignore prompt', // come back later to take closer look at this ignorePrompt (in case any change is needed)
     installAtlasConnection: 'ATLAS connection',
     installLocalConnection: 'LOCAL connection',
     continueWithDefault: 'Continue with default (ATLAS) connection',
@@ -42,6 +43,11 @@ export const connectionSetupTypePrompt = async (templateNameString, pathToCheck)
   };
 
   const promptsUserArgs = { templateName, promptOption, pathToCheck, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists };
-  if (!user.isFirstTimer && runningDevScript) runPackageJsonScriptWithoutPrompt(promptsUserArgs);
-  if (runningChangeConnection || (user.isFirstTimer && runningDevScript)) promptsUserResponseAndOutcomes(promptsUserArgs);
+  if (user.isFirstTimer) {
+    if (runningDevScript) promptsUserResponseAndOutcomes(promptsUserArgs);
+    if (runningChangeConnection) warning('ℹ You do not need the change command yet: the change command is for changing your connection type after the "npm run dev" command has saved a previous connection type for you, but you want to change the connection type without restoring the application to first time usage condition \n');
+  } else {
+    if (runningDevScript) runPackageJsonScriptWithoutPrompt(promptsUserArgs);
+    if (runningChangeConnection) promptsUserResponseAndOutcomes(promptsUserArgs);
+  }
 }
