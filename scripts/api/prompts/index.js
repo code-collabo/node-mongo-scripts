@@ -45,7 +45,7 @@ export const connectionSetupTypePrompt = async () => {
   const promptsUserArgs = { promptOption, dbServerFileNames, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists };
   if (user.isFirstTimer) {
     if (runningDevScript) promptsUserResponseAndOutcomes(promptsUserArgs);
-    if (runningChangeConnection) warning('ℹ You do not need the change command yet: the change command is for changing your connection setup type (only) after the "npm run dev" command has saved a connection setup type for you previously, without restoring the entire automated dev server settings to first time usage condition \n');
+    if (runningChangeConnection) warning('ℹ You do not need the change command yet: the change command is for changing your connection setup type (only) after the "npm run dev" command has saved a connection setup type for you previously, without restoring the automated dev server settings to first time usage condition \n');
   } else {
     if (runningDevScript) runPackageJsonScriptWithoutPrompt(promptsUserArgs);
     if (runningChangeConnection) promptsUserResponseAndOutcomes(promptsUserArgs);
