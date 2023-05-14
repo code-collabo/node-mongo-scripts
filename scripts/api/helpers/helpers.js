@@ -102,7 +102,7 @@ export const installAndConnect = (pkgJsonScript, message) => {
 export const restoreToFirstTimer = async () => {
   try {
     if (user.isFirstTimer) {
-      warning('ℹ You do not need the restore command yet: the restore command is for resetting your your automated dev server settings to first time usage condition (i.e. both your connection setup type and first timer status) if ever you wish to change it after the "npm run dev" command saves it for you \n');
+      warning('ℹ You do not need the restore command yet: the restore command is for resetting your automated dev server settings to first time usage condition (i.e. both your connection setup type and first timer status) if ever you wish to change it after the "npm run dev" command saves it for you \n');
     } else {
       // Restore default (atlas) connection files
       const { dbServerFileNames, atlasTemplateDirectory } = setTemplateFileDirExt();
@@ -118,7 +118,7 @@ export const restoreToFirstTimer = async () => {
         isFirstTimer: true,
         savedConnection: 'ATLAS',
       });
-      success('✔ Connection setup type successfully restored to default: ATLAS');
+      success('✔ Previously saved connection setup type removed');
       warning('\nℹ First timer status update: You will now have the option to set your preferred connection setup type again the next time you start the automated dev server. To start the automated dev server, use the command:\nnpm run dev\n');
     }
   } catch(err) {
