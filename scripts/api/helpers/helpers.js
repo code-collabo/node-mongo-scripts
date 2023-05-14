@@ -87,8 +87,8 @@ const changeConnectionMessage = (message, pkgJsonScript) => {
       success(`ℹ Using your saved connection setting: ${pkgJsonScript.slice(4).toUpperCase()}\n  Running: npm run ${pkgJsonScript}`);
     }
     if (message) {
-      warning('\nℹ If you ever wish to reset your connection type before running the "npm run dev" command again, use the command:\n npm run dev:restore');
-      warning('\nℹ Or you can use this other command to change your connection:\n npm run dev:change');
+      warning('\nℹ If you ever wish to reset your automated dev server settings to first time usage condition (i.e. both your saved connection setup type and first timer status) before running the "npm run dev" command again, use the command:\n npm run dev:restore');
+      warning('\nℹ To change your saved connection setup type only, use the command:\n npm run dev:change');
     }
   }
   if (runningChangeConnection) warning('ℹ Start the server with the command:\n  npm run dev\n');
@@ -102,7 +102,7 @@ export const installAndConnect = (pkgJsonScript, message) => {
 export const restoreToFirstTimer = async () => {
   try {
     if (user.isFirstTimer) {
-      warning('ℹ You do not need the restore command yet: the restore command is for resetting your connection type if ever you wish to change it after the "npm run dev" command saves it for you \n');
+      warning('ℹ You do not need the restore command yet: the restore command is for resetting your your automated dev server settings to first time usage condition (i.e. both your connection setup type and first timer status) if ever you wish to change it after the "npm run dev" command saves it for you \n');
     } else {
       // Restore default (atlas) connection files
       const { dbServerFileNames, atlasTemplateDirectory } = setTemplateFileDirExt();
@@ -118,8 +118,8 @@ export const restoreToFirstTimer = async () => {
         isFirstTimer: true,
         savedConnection: 'ATLAS',
       });
-      success('✔ Previously saved connection setup type removed');
-      warning('\nℹ You will now have the option to set preferred connection type again the next time you start the server with the command:\nnpm run dev\n');
+      success('✔ Connection setup type successfully restored to default: ATLAS');
+      warning('\nℹ First timer status update: You will now have the option to set your preferred connection setup type again the next time you start the automated dev server. To start the automated dev server, use the command:\nnpm run dev\n');
     }
   } catch(err) {
     error(err);
