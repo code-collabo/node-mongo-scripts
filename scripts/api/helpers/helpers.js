@@ -2,6 +2,7 @@ import fs from 'fs';
 import { error, success, warning } from '../../shared/console.js';
 import { changeUserSettings, copyTemplateFiles, deletePreviousTemplateFiles, npmRunPackageJsonScript } from '../../shared/helpers.js';
 import { user } from './user.js';
+import nodemongo_config from '../../../../../../node-mongo.json';
 
 export const nodemongoPaths = () => {
   const nodemongoRoot = '../../node-mongo-scripts';
@@ -15,18 +16,22 @@ export const nodemongoPaths = () => {
   }
 
   return {
+    templatePath: nodemongo_config,
     root: nodemongoRoot,
     apiTemplatesFolder: nodemongoAPItemplatesFolder,
     userObjFileLocation
   }
 }
 
+let { templatePath } = nodemongoPaths();
+const { pathToCheck, templateName } = templatePath; // for everywhere we need them in this file
+
 const npmLifeCycleEvent = process.env.npm_lifecycle_event;
 export const runningDevScript = npmLifeCycleEvent === 'dev';
 export const runningChangeConnection = npmLifeCycleEvent === 'dev:change';
 export const runningRestoreConnection = npmLifeCycleEvent === 'dev:restore';
 
-export const setTemplateFileDirExt = (templateName, pathToCheck) => {
+export const setTemplateFileDirExt = () => {
   let dbServerFileNames, ext;
 
   templateName === 'ts' ? ext = '.ts' : ext = '.js';
@@ -52,7 +57,6 @@ export const setTemplateFileDirExt = (templateName, pathToCheck) => {
   const atleastOneSetOfLocalConnectionFileExists = dbServerFileNames.local.some(element => dirFiles.includes(element));
 
   return {
-    templateName,
     dbServerFileNames,
     atlasTemplateDirectory,
     localTemplateDirectory,
@@ -63,7 +67,7 @@ export const setTemplateFileDirExt = (templateName, pathToCheck) => {
   }
 }
 
-const changeConnectionMessage = (message, pkgJsonScript, templatePath) => {
+const changeConnectionMessage = (message, pkgJsonScript) => {
   // FUTURE TODO: message !== 'bothPairsExist' is an hack for now. How do we collect templateName and pathToaheck for use globally without having to pass them as arguments everytime.
   if (message && message !== 'bothPairsExist') success(message);
   if (message === 'bothPairsExist') success('');
@@ -84,18 +88,18 @@ const changeConnectionMessage = (message, pkgJsonScript, templatePath) => {
   if (runningChangeConnection) warning('ℹ Start the server with the command:\n  npm run dev\n');
 }
 
-export const installAndConnect = (pkgJsonScript, message, templatePath) => {
-  changeConnectionMessage(message, pkgJsonScript, templatePath);
+export const installAndConnect = (pkgJsonScript, message) => {
+  changeConnectionMessage(message, pkgJsonScript);
   if (runningDevScript) npmRunPackageJsonScript({ script: pkgJsonScript, currentWorkingDir: './'})
 }
 
-export const restoreToFirstTimer = async (pathToCheck, templateName) => {
+export const restoreToFirstTimer = async () => {
   try {
     if (user.isFirstTimer) {
       warning('ℹ You do not need the restore command yet: the restore command is for resetting your connection type if ever you wish to change it after the "npm run dev" command saves it for you \n');
     } else {
       // Restore default (atlas) connection files
-      const { dbServerFileNames, atlasTemplateDirectory } = setTemplateFileDirExt(templateName, pathToCheck);
+      const { dbServerFileNames, atlasTemplateDirectory } = setTemplateFileDirExt();
       await deletePreviousTemplateFiles(dbServerFileNames.local, pathToCheck);
       const copyFilesDir = { templateDirectory: atlasTemplateDirectory, targetDirectory: pathToCheck };
       await copyTemplateFiles({ ...copyFilesDir });
