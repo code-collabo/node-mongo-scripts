@@ -45,25 +45,31 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
       });
     }
 
-    const selectionOptionIsSameAsAtlasOrLocal = async () => {
+    const selectionOptionIsSameAsAtlasOrLocal = async (onlyAtlasPairOrOnlyLocalPairOfConnectionFiles) => {
       if (selectedOptionIsSameAs.switchToAtlasOrDefault || selectedOptionIsSameAs.installAtlasConnection) {
-        await deletePreviousTemplateFiles(dbServerFileNames.local, pathToCheck);
-        const copyFilesDir = { templateDirectory: atlasTemplateDirectory, targetDirectory: pathToCheck };
-        await copyTemplateFiles({ ...copyFilesDir });
-        installAndConnect('dev:atlas', '\n✔ Atlas db and server connection files installed in src folder\n', templatePath);
+        if (onlyAtlasPairOrOnlyLocalPairOfConnectionFiles) {
+          await deletePreviousTemplateFiles(dbServerFileNames.local, pathToCheck);
+          const copyFilesDir = { templateDirectory: atlasTemplateDirectory, targetDirectory: pathToCheck };
+          await copyTemplateFiles({ ...copyFilesDir });
+        }
+        const message = onlyAtlasPairOrOnlyLocalPairOfConnectionFiles ? '\n✔ Atlas db and server connection files installed in src folder\n' : 'bothPairsExist';
+        installAndConnect('dev:atlas', message, templatePath);
         updateUserSettings('dev:atlas');
       }
   
       if (selectedOptionIsSameAs.switchToLocal || selectedOptionIsSameAs.installLocalConnection) {
-        await deletePreviousTemplateFiles(dbServerFileNames.atlas, pathToCheck);
-        const copyFilesDir = { templateDirectory: localTemplateDirectory, targetDirectory: pathToCheck };
-        await copyTemplateFiles({ ...copyFilesDir });
-        installAndConnect('dev:local', '\n✔ Local db and server connection files installed in src folder\n', templatePath);
+        if (onlyAtlasPairOrOnlyLocalPairOfConnectionFiles) {
+          await deletePreviousTemplateFiles(dbServerFileNames.atlas, pathToCheck);
+          const copyFilesDir = { templateDirectory: localTemplateDirectory, targetDirectory: pathToCheck };
+          await copyTemplateFiles({ ...copyFilesDir });
+        }
+        const message = onlyAtlasPairOrOnlyLocalPairOfConnectionFiles ? '\n✔ Local db and server connection files installed in src folder\n' : 'bothPairsExist';
+        installAndConnect('dev:local', message, templatePath);
         updateUserSettings('dev:local');
       }
     }
 
-    selectionOptionIsSameAsAtlasOrLocal();
+    selectionOptionIsSameAsAtlasOrLocal(true);
 
     if (selectedOptionIsSameAs.ignorePrompt || selectedOptionIsSameAs.continueWithBoth) {
       if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) {
@@ -89,7 +95,7 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
           ignorePrompt: connectionNameAnswers.template === promptOption.ignorePrompt,
           continueWithBoth: connectionNameAnswers.template === promptOption.continueWithBoth,
         } //===
-        selectionOptionIsSameAsAtlasOrLocal();
+        selectionOptionIsSameAsAtlasOrLocal(false);
       }
     }
   } catch(err) {

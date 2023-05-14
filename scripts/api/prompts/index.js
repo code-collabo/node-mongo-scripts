@@ -31,7 +31,7 @@ export const connectionSetupTypePrompt = async (pathToCheck, templateNameString)
     installAtlasConnection: 'ATLAS connection',
     installLocalConnection: 'LOCAL connection',
     continueWithDefault: 'Continue with default (ATLAS) connection',
-    continueWithBoth: 'Continue using both (not recommended)',
+    continueWithBoth: 'Keep both ATLAS and LOCAL connection setup (not recommended)',
   };
 
   const userChoice = {

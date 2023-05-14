@@ -64,7 +64,10 @@ export const setTemplateFileDirExt = (templateName, pathToCheck) => {
 }
 
 const changeConnectionMessage = (message, pkgJsonScript, templatePath) => {
-  if (message) success(message);
+  // FUTURE TODO: message !== 'bothPairsExist' is an hack for now. How do we collect templateName and pathToaheck for use globally without having to pass them as arguments everytime.
+  if (message && message !== 'bothPairsExist') success(message);
+  if (message === 'bothPairsExist') success('');
+
   if (runningDevScript) {
     if (user.isFirstTimer) {
       success(`✔ Connection setup type "${pkgJsonScript.slice(4).toUpperCase()}" saved for every other time you run the "npm run dev" command`);
