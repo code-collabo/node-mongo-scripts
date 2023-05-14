@@ -68,9 +68,15 @@ export const setTemplateFileDirExt = () => {
 }
 
 const changeConnectionMessage = (message, pkgJsonScript) => {
-  // FUTURE TODO: message !== 'bothPairsExist' is an hack for now. How do we collect templateName and pathToaheck for use globally without having to pass them as arguments everytime.
-  if (message && message !== 'bothPairsExist') success(message);
-  if (message === 'bothPairsExist') success('');
+  const { atlasSetOfConnectionFiles, localSetOfConnectionFiles } = setTemplateFileDirExt();
+  const onlyAtlasPairOfConnectionFiles = atlasSetOfConnectionFiles && !localSetOfConnectionFiles;
+  const onlyLocalPairOfConnectionFiles = !atlasSetOfConnectionFiles && localSetOfConnectionFiles;
+  const bothPairsExist = atlasSetOfConnectionFiles && localSetOfConnectionFiles;
+
+  if (message) {
+    if (onlyAtlasPairOfConnectionFiles || onlyLocalPairOfConnectionFiles) success(message);
+    if (bothPairsExist) success('');
+  };
 
   if (runningDevScript) {
     if (user.isFirstTimer) {

@@ -51,8 +51,7 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
           const copyFilesDir = { templateDirectory: atlasTemplateDirectory, targetDirectory: pathToCheck };
           await copyTemplateFiles({ ...copyFilesDir });
         }
-        const message = onlyAtlasPairOrOnlyLocalPairOfConnectionFiles ? '\n✔ Atlas db and server connection files installed in src folder\n' : 'bothPairsExist';
-        installAndConnect('dev:atlas', message);
+        installAndConnect('dev:atlas', '\n✔ Atlas db and server connection files installed in src folder\n');
         updateUserSettings('dev:atlas');
       }
   
@@ -62,8 +61,7 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
           const copyFilesDir = { templateDirectory: localTemplateDirectory, targetDirectory: pathToCheck };
           await copyTemplateFiles({ ...copyFilesDir });
         }
-        const message = onlyAtlasPairOrOnlyLocalPairOfConnectionFiles ? '\n✔ Local db and server connection files installed in src folder\n' : 'bothPairsExist';
-        installAndConnect('dev:local', message);
+        installAndConnect('dev:local', '\n✔ Local db and server connection files installed in src folder\n');
         updateUserSettings('dev:local');
       }
     }
