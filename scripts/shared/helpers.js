@@ -14,12 +14,14 @@ export const npmRunPackageJsonScript = ({ script, currentWorkingDir }) => {
 }
 
 export const copyTemplateFiles = async (options) => {
-  return copy(options.templateDirectory, options.targetDirectory, {
+  const { templateDirectory, targetDirectory } = options;
+  return copy(templateDirectory, targetDirectory, {
     clobber: false
   });
 }
 
-export const deletePreviousTemplateFiles = async (filesArray, folderPath) => {
+export const deletePreviousTemplateFiles = async (options) => {
+  const { filesArray, folderPath } = options;
   try {
     filesArray.map((file) => {
       fs.existsSync(`${folderPath}/${file}`) ? fs.unlinkSync(`${folderPath}/${file}`) : null;

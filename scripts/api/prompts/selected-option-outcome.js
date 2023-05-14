@@ -47,7 +47,8 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
     const selectionOptionIsSameAsAtlasOrLocal = async (onlyAtlasPairOrOnlyLocalPairOfConnectionFiles) => {
       if (selectedOptionIsSameAs.switchToAtlasOrDefault || selectedOptionIsSameAs.installAtlasConnection) {
         if (onlyAtlasPairOrOnlyLocalPairOfConnectionFiles) {
-          await deletePreviousTemplateFiles(dbServerFileNames.local, pathToCheck);
+          const deleteFilesDir = { filesArray: dbServerFileNames.local, folderPath: pathToCheck };
+          await deletePreviousTemplateFiles(deleteFilesDir);
           const copyFilesDir = { templateDirectory: atlasTemplateDirectory, targetDirectory: pathToCheck };
           await copyTemplateFiles({ ...copyFilesDir });
         }
@@ -57,7 +58,8 @@ export const selectedOptionOutcome = async (arg, questionPushArgs, connectionQue
   
       if (selectedOptionIsSameAs.switchToLocal || selectedOptionIsSameAs.installLocalConnection) {
         if (onlyAtlasPairOrOnlyLocalPairOfConnectionFiles) {
-          await deletePreviousTemplateFiles(dbServerFileNames.atlas, pathToCheck);
+          const deleteFilesDir = { filesArray: dbServerFileNames.atlas, folderPath: pathToCheck };
+          await deletePreviousTemplateFiles(deleteFilesDir);
           const copyFilesDir = { templateDirectory: localTemplateDirectory, targetDirectory: pathToCheck };
           await copyTemplateFiles({ ...copyFilesDir });
         }

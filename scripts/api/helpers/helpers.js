@@ -106,7 +106,8 @@ export const restoreToFirstTimer = async () => {
     } else {
       // Restore default (atlas) connection files
       const { dbServerFileNames, atlasTemplateDirectory } = setTemplateFileDirExt();
-      await deletePreviousTemplateFiles(dbServerFileNames.local, pathToCheck);
+      const deleteFilesDir = { filesArray: dbServerFileNames.local, folderPath: pathToCheck };
+      await deletePreviousTemplateFiles(deleteFilesDir);
       const copyFilesDir = { templateDirectory: atlasTemplateDirectory, targetDirectory: pathToCheck };
       await copyTemplateFiles({ ...copyFilesDir });
       success('✔ Default (Atlas) db and server connection files restored in src folder\n');
