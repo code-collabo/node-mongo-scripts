@@ -5,7 +5,7 @@ import { user } from './user.js';
 import nodemongo_config from '../../../../../../node-mongo.json';
 
 export const nodemongoPaths = () => {
-  const nodemongoRoot = '../../node-mongo-scripts';
+  const nodemongoRoot = 'node_modules/@code-collabo/node-mongo-scripts';
   const nodemongoAPItemplatesFolder =  `${nodemongoRoot}/api-templates`;
   const nodemongoScriptsFolder =  `${nodemongoRoot}/scripts`;
   const nodemongoAPIhelpersFolder = `${nodemongoScriptsFolder}/api/helpers/`;
