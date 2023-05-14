@@ -1,4 +1,4 @@
-import { user } from '../helpers/user.js';
+import { runningChangeConnection, runningDevScript } from '../helpers/helpers.js';
 
 export const questionPushAPIscripts = (arg, continueWithBoth) => {
   const { connectionQuestions, atlasSetOfConnectionFiles, localSetOfConnectionFiles, userChoice, noCompleteSetOfAtlasOrLocalConnectionFiles, noOneFileFromPairExists, oneFileFromPairExists } = arg;
@@ -8,17 +8,27 @@ export const questionPushAPIscripts = (arg, continueWithBoth) => {
     name: 'template',
   }
 
-  const atlasDefaultMessage = user.isFirstTimer ? 
-    'The default connection type is ATLAS i.e. the db and server connection files are set up to work with monogDB ATLAS. Choose whether you will like to continue with mongoDB ATLAS connection setup, or switch to LOCAL mongoDB connecion setup' 
-    : 'Your nodejs API already uses the ATLAS server and db connection type.\n  Which of these actions would you like to take?';
+  const atlasDefaultMessage = 'The default connection type is ATLAS i.e. the db and server connection files are set up to work with monogDB ATLAS. Choose whether you will like to continue with mongoDB ATLAS connection setup, or switch to LOCAL mongoDB connecion setup';
 
   if (atlasSetOfConnectionFiles && !localSetOfConnectionFiles) {
-    connectionQuestions.push({
-      ...inquiryType,
-      message: atlasDefaultMessage,
-      choices: userChoice.atlas,
-      default: userChoice.atlas[0],
-    });
+    let questionAndPrompt = {};
+    if (runningDevScript) {
+      questionAndPrompt = {
+        ...inquiryType,
+        message: atlasDefaultMessage,
+        choices: userChoice.default,
+        default: userChoice.default[0],
+      }
+    }
+    if (runningChangeConnection) {
+      questionAndPrompt = {
+        ...inquiryType,
+        message: 'Your nodejs API already uses the ATLAS server and db connection type.\n  Which of these actions would you like to take?',
+        choices: userChoice.atlas,
+        default: userChoice.atlas[0],
+      }
+    }
+    connectionQuestions.push(questionAndPrompt);
   }
 
   if (localSetOfConnectionFiles && !atlasSetOfConnectionFiles) {
