@@ -1,4 +1,5 @@
 import fs from 'fs';
+const { spawn } = require('child_process');
 import { error, success, warning } from '../../shared/console.js';
 import { changeUserSettings, copyTemplateFiles, deletePreviousTemplateFiles, npmRunPackageJsonScript } from '../../shared/helpers.js';
 import { user } from './user.js';
@@ -30,6 +31,8 @@ const npmLifeCycleEvent = process.env.npm_lifecycle_event;
 export const runningDevScript = npmLifeCycleEvent === 'dev';
 export const runningChangeConnection = npmLifeCycleEvent === 'dev:change';
 export const runningRestoreConnection = npmLifeCycleEvent === 'dev:restore';
+export const runningLocalServerConnection = npmLifeCycleEvent === 'dev:local';
+export const runningAtlasServerConnection = npmLifeCycleEvent === 'dev:atlas';
 
 export const setTemplateFileDirExt = () => {
   let dbServerFileNames, ext;
@@ -124,4 +127,28 @@ export const restoreToFirstTimer = async () => {
   } catch(err) {
     error(err);
   }
+}
+
+const startServer = (runner, serverFile, errorMessage) => {
+  if (fs.existsSync(serverFile)) {
+    const nodemon = spawn('nodemon', ['--exec', runner, serverFile]);
+    nodemon.stdout.pipe(process.stdout);
+    nodemon.stderr.pipe(process.stderr);
+  } else {
+    error(errorMessage);
+  }
+}
+
+export const startLocalServer = () => {
+  const runner = process.argv[process.argv.length - 2];
+  const serverFile = process.argv[process.argv.length - 1];
+  let errorMessage = `You can only run dev:local command when you are in local development mode. \nYou can switch to local dev mode using dev:change command`;
+  startServer(runner, serverFile, errorMessage);
+}
+
+export const startAtlasServer = () => {
+  const runner = process.argv[process.argv.length - 2];
+  const serverFile = process.argv[process.argv.length - 1];
+  let errorMessage = `You can only run dev:atlas command when you are in atlas development mode. \nYou can switch to atlas dev mode using dev:change command`;
+  startServer(runner, serverFile, errorMessage);
 }
