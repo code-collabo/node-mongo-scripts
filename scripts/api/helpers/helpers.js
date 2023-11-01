@@ -1,4 +1,5 @@
 import fs from 'fs';
+const { spawn } = require('child_process');
 import { error, success, warning } from '../../shared/console.js';
 import { changeUserSettings, copyTemplateFiles, deletePreviousTemplateFiles, npmRunPackageJsonScript } from '../../shared/helpers.js';
 import { user } from './user.js';
@@ -29,7 +30,7 @@ const { pathToCheck, templateName } = templatePath; // for everywhere we need th
 const npmLifeCycleEvent = process.env.npm_lifecycle_event;
 export const runningDevScript = npmLifeCycleEvent === 'dev';
 export const runningChangeConnection = npmLifeCycleEvent === 'dev:change';
-export const runningRestoreConnection = npmLifeCycleEvent === 'dev:restore';
+export const runningServerConnection = npmLifeCycleEvent === 'dev:server';
 
 export const setTemplateFileDirExt = () => {
   let dbServerFileNames, ext;
@@ -123,5 +124,17 @@ export const restoreToFirstTimer = async () => {
     }
   } catch(err) {
     error(err);
+  }
+}
+
+export const startServer = () => {
+  const runner = process.argv[process.argv.length - 2];
+  const serverFile = process.argv[process.argv.length - 1];
+  if (fs.existsSync(serverFile)) {
+    const nodemon = spawn('nodemon', ['--exec', runner, serverFile]);
+    nodemon.stdout.pipe(process.stdout);
+    nodemon.stderr.pipe(process.stderr);
+  } else {
+    error(`Something went wrong. Verify that ${serverFile} is avialable in src/ directory and readable`);
   }
 }
